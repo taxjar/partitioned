@@ -1,4 +1,4 @@
 module Partitioned
   # the current version of this gem
-  VERSION = "0.8.1"
+  VERSION = "1.0.1"
 end
