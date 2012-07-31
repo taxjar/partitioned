@@ -2,8 +2,6 @@
 # :include: ../../README
 #
 
-require 'forwardable'
-
 module Partitioned
   #
   # Used by PartitionedBase class methods that must be overridden.
