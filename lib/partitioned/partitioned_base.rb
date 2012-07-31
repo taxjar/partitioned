@@ -318,68 +318,107 @@ module Partitioned
       }
     end
 
+    #
+    # this methods are hand delegated because forwardable module conflicts
+    # with rails delegate.
+    #
+
     ##
     # :singleton-method: drop_partition_table
     # delegated to Partitioned::PartitionedBase::PartitionManager#drop_partition_table
+    def self.drop_partition_table(*partition_key_values)
+      partition_manager.drop_partition_table(*partition_key_values)
+    end
 
     ##
     # :singleton-method: create_partition_table
     # delegated to Partitioned::PartitionedBase::PartitionManager#create_partition_table
+    def self.create_partition_table(*partition_key_values)
+      partition_manager.create_partition_table(*partition_key_values)
+    end
 
     ##
     # :singleton-method: add_partition_table_index
     # delegated to Partitioned::PartitionedBase::PartitionManager#add_partition_table_index
+    def self.add_partition_table_index(*partition_key_values)
+      partition_manager.add_partition_table_index(*partition_key_values)
+    end
 
     ##
     # :singleton-method: add_references_to_partition_table
     # delegated to Partitioned::PartitionedBase::PartitionManager#add_references_to_partition_table
+    def self.add_references_to_partition_table(*partition_key_values)
+      partition_manager.add_references_to_partition_table(*partition_key_values)
+    end
 
     ##
     # :method: create_partition_schema
     # delegated to Partitioned::PartitionedBase::PartitionManager#create_partition_schema
+    def self.create_partition_schema(*partition_key_values)
+      partition_manager.create_partition_schema(*partition_key_values)
+    end
 
     ##
     # :singleton-method: add_parent_table_rules
     # delegated to Partitioned::PartitionedBase::PartitionManager#add_parent_table_rules
+    def self.add_parent_table_rules(*partition_key_values)
+      partition_manager.add_parent_table_rules(*partition_key_values)
+    end
 
     ##
     # :method: drop_old_partitions
     # delegated to Partitioned::PartitionedBase::PartitionManager#drop_old_partitions
+    def self.drop_old_partitions
+      partition_manager.drop_old_partitions
+    end
 
     ##
     # :method: create_new_partitions
     # delegated to Partitioned::PartitionedBase::PartitionManager#create_new_partitions
+    def self.create_new_partitions
+      partition_manager.create_new_partitions
+    end
 
     ##
     # :method: drop_old_partition
     # delegated to Partitioned::PartitionedBase::PartitionManager#drop_old_partition
+    def self.drop_old_partition(*partition_key_values)
+      partition_manager.drop_old_partition(*partition_key_values)
+    end
 
     ##
     # :method: create_new_partition
     # delegated to Partitioned::PartitionedBase::PartitionManager#create_new_partition
+    def self.create_new_partition(*partition_key_values)
+      partition_manager.create_new_partition(*partition_key_values)
+    end
 
     ##
     # :method: create_new_partition_tables
     # delegated to Partitioned::PartitionedBase::PartitionManager#create_new_partition_tables
+    def self.create_new_partition_tables(enumerable)
+      partition_manager.create_new_partition_tables(enumerable)
+    end
 
     ##
     # :method: create_infrastructure
     # delegated to Partitioned::PartitionedBase::PartitionManager#create_infrastructure
+    def self.create_infrastructure
+      partition_manager.create_infrastructure
+    end
 
     ##
     # :method: partition_table_name
     # delegated to Partitioned::PartitionedBase::PartitionManager#partition_table_name
+    def self.partition_table_name(*partition_key_values)
+      return partition_manager.partition_table_name(*partition_key_values)
+    end
 
     ##
     # :method: partition_name
     # delegated to Partitioned::PartitionedBase::PartitionManager#partition_table_name
-
-    extend SingleForwardable
-    def_delegators :partition_manager, :drop_partition_table, :create_partition_table,
-      :add_partition_table_index, :add_references_to_partition_table,
-      :create_partition_schema, :add_parent_table_rules, :drop_old_partitions,
-      :create_new_partitions, :drop_old_partition, :create_new_partition,
-      :create_new_partition_tables, :create_infrastructure, :partition_table_name
-    def_delegator :partition_manager, :partition_table_name, :partition_name
+    def self.partition_name(*partition_key_values)
+      return partition_manager.partition_table_name(*partition_key_values)
+    end
   end
 end
