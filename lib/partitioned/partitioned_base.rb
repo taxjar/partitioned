@@ -381,6 +381,13 @@ module Partitioned
     end
 
     ##
+    # :method: archive_old_partition
+    # delegated to Partitioned::PartitionedBase::PartitionManager#archive_old_partition
+    def self.drop_old_partition(*partition_key_values)
+      partition_manager.drop_archive_partition(*partition_key_values)
+    end
+
+    ##
     # :method: drop_old_partition
     # delegated to Partitioned::PartitionedBase::PartitionManager#drop_old_partition
     def self.drop_old_partition(*partition_key_values)

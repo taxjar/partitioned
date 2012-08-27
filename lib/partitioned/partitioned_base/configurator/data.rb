@@ -41,7 +41,9 @@ module Partitioned
         attr_accessor :on_field, :indexes, :foreign_keys, :last_partitions_order_by_clause,
            :schema_name, :name_prefix, :base_name,
            :part_name, :table_name, :parent_table_schema_name,
-           :parent_table_name, :check_constraint, :encoded_name
+           :parent_table_name, :check_constraint, :encoded_name,
+           :ensure_janitor_creates, :ensure_janitor_archives, :ensure_janitor_drops,
+           :janitorial_work_enabled
         
         def initialize
           @on_field = nil
@@ -64,6 +66,11 @@ module Partitioned
           @check_constraint = nil
 
           @encoded_name = nil
+
+          @ensure_janitor_creates = nil
+          @ensure_janitor_archives = nil
+          @ensure_janitor_drops = nil
+          @enable_janitorial_work = nil
         end
       end
     end

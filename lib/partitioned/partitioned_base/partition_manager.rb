@@ -15,6 +15,17 @@ module Partitioned
       end
 
       #
+      # Archive partitions that need such.
+      # uses #archive_old_partition_key_values_set as the list of
+      # partitions to remove.
+      #
+      def archive_old_partitions
+        archive_old_partition_key_values_set.each do |*partition_key_values|
+          archive_old_partition(*partition_key_values)
+        end
+      end
+
+      #
       # Drop partitions that are no longer necessary.
       # uses #old_partition_key_values_set as the list of
       # partitions to remove.
@@ -64,10 +75,20 @@ module Partitioned
       # Used by #create_new_partitions and generally called once a day to update
       # the database with new soon-to-be needed child tables.
       #
-      # Typically overridden by the concrete class as this is pure business logic.
-      #
       def new_partition_key_values_set
-        []
+        return configurator.ensure_janitor_creates
+      end
+
+      #
+      # An array of key values (each key value is an array of keys) that represent
+      # the child partitions that should be archived probably because they are
+      # about to be dropped.
+      #
+      # Used by #archive_old_partitions and generally called once a day to clean up
+      # unneeded child tables.
+      #
+      def archive_old_partition_key_values_set
+        return configurator.ensure_janitor_archives
       end
 
       #
@@ -77,10 +98,16 @@ module Partitioned
       # Used by #drop_old_partitions and generally called once a day to clean up
       # unneeded child tables.
       #
-      # Typically overridden by the concrete class as this is pure business logic.
-      #
       def old_partition_key_values_set
-        []
+        return configurator.ensure_janitor_drops
+      end
+
+      #
+      # Archive a specific partition from the database given
+      # the key value(s) of its check constraint columns.
+      #
+      def archive_old_partition(*partition_key_values)
+        archive_partition_table(*partition_key_values)
       end
 
       #
@@ -131,8 +158,16 @@ module Partitioned
       # :method: partition_table_name
       # delegated to Partitioned::PartitionedBase::PartitionManager::SqlAdapter#partition_table_name
 
+      ##
+      # :method: sql_adapter
+      # delegated to Partitioned::PartitionedBase#sql_adapter
+
+      ##
+      # :method: configurator
+      # delegated to Partitioned::PartitionedBase#configurator
+
       extend Forwardable
-      def_delegators :parent_table_class, :sql_adapter
+      def_delegators :parent_table_class, :sql_adapter, :configurator
       def_delegators :sql_adapter, :drop_partition_table, :create_partition_table, :add_partition_table_index,
          :add_references_to_partition_table, :create_partition_schema, :add_parent_table_rules, :partition_table_name
     end

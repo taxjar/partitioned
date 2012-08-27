@@ -26,6 +26,11 @@ module Partitioned
           @parent_table_name = nil
 
           @encoded_name = nil
+
+          @ensure_janitor_creates = nil
+          @ensure_janitor_archives = nil
+          @ensure_janitor_drops = nil
+          @enable_janitorial_work = nil
         end
 
         #
@@ -135,6 +140,33 @@ module Partitioned
           return @last_partitions_order_by_clause
         end
 
+        def ensure_janitor_creates
+          unless @ensure_janitor_creates
+            @ensure_janitor_creates = collect_first(&:ensure_janitor_creates)
+          end
+          return @ensure_janitor_creates
+        end
+
+        def ensure_janitor_archives
+          unless @ensure_janitor_archives
+            @ensure_janitor_archives = collect_first(&:ensure_janitor_archives)
+          end
+          return @ensure_janitor_archives
+        end
+
+        def ensure_janitor_drops
+          unless @ensure_janitor_drops
+            @ensure_janitor_drops = collect_first(&:ensure_janitor_drops)
+          end
+          return @ensure_janitor_drops
+        end
+
+        def janitorial_work_enabled
+          unless @enable_janitorial_work
+            @enable_janitorial_work = collect_first(&:enable_janitorial_work)
+          end
+          return @enable_janitorial_work
+        end
 
         protected
 

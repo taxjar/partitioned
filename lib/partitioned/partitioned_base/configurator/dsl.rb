@@ -627,6 +627,22 @@ module Partitioned
         def parent_table_schema_name(value)
           data.parent_table_schema_name = value
         end
+
+        def enable_janitorial_work(value = true)
+          data.enable_janitorial_work = value
+        end
+
+        def ensure_janitor_creates(value)
+          data.ensure_janitor_creates = value
+        end
+
+        def ensure_janitor_archives(value)
+          data.ensure_janitor_archives = value
+        end
+
+        def ensure_janitor_drops(value)
+          data.ensure_janitor_drops = value
+        end
       end
     end
   end
