@@ -27,10 +27,9 @@ module Partitioned
 
           @encoded_name = nil
 
-          @ensure_janitor_creates = nil
-          @ensure_janitor_archives = nil
-          @ensure_janitor_drops = nil
-          @enable_janitorial_work = nil
+          @janitorial_creates_needed = nil
+          @janitorial_archives_needed = nil
+          @janitorial_drops_needed = nil
         end
 
         #
@@ -140,32 +139,25 @@ module Partitioned
           return @last_partitions_order_by_clause
         end
 
-        def ensure_janitor_creates
-          unless @ensure_janitor_creates
-            @ensure_janitor_creates = collect_first(&:ensure_janitor_creates)
+        def janitorial_creates_needed
+          unless @janitorial_creates_needed
+            @janitorial_creates_needed = collect_first(&:janitorial_creates_needed)
           end
-          return @ensure_janitor_creates
+          return @janitorial_creates_needed
         end
 
-        def ensure_janitor_archives
-          unless @ensure_janitor_archives
-            @ensure_janitor_archives = collect_first(&:ensure_janitor_archives)
+        def janitorial_archives_needed
+          unless @janitorial_archives_needed
+            @janitorial_archives_needed = collect_first(&:janitorial_archives_needed)
           end
-          return @ensure_janitor_archives
+          return @janitorial_archives_needed
         end
 
-        def ensure_janitor_drops
-          unless @ensure_janitor_drops
-            @ensure_janitor_drops = collect_first(&:ensure_janitor_drops)
+        def janitorial_drops_needed
+          unless @janitorial_drops_needed
+            @janitorial_drops_needed = collect_first(&:janitorial_drops_needed)
           end
-          return @ensure_janitor_drops
-        end
-
-        def janitorial_work_enabled
-          unless @enable_janitorial_work
-            @enable_janitorial_work = collect_first(&:enable_janitorial_work)
-          end
-          return @enable_janitorial_work
+          return @janitorial_drops_needed
         end
 
         protected

@@ -76,7 +76,7 @@ module Partitioned
       # the database with new soon-to-be needed child tables.
       #
       def new_partition_key_values_set
-        return configurator.ensure_janitor_creates
+        return configurator.janitorial_creates_needed
       end
 
       #
@@ -88,7 +88,7 @@ module Partitioned
       # unneeded child tables.
       #
       def archive_old_partition_key_values_set
-        return configurator.ensure_janitor_archives
+        return configurator.janitorial_archives_needed
       end
 
       #
@@ -99,7 +99,7 @@ module Partitioned
       # unneeded child tables.
       #
       def old_partition_key_values_set
-        return configurator.ensure_janitor_drops
+        return configurator.janitorial_drops_needed
       end
 
       #

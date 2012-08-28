@@ -42,8 +42,7 @@ module Partitioned
            :schema_name, :name_prefix, :base_name,
            :part_name, :table_name, :parent_table_schema_name,
            :parent_table_name, :check_constraint, :encoded_name,
-           :ensure_janitor_creates, :ensure_janitor_archives, :ensure_janitor_drops,
-           :janitorial_work_enabled
+           :janitorial_creates_needed, :janitorial_archives_needed, :janitorial_drops_needed
         
         def initialize
           @on_field = nil
@@ -67,10 +66,9 @@ module Partitioned
 
           @encoded_name = nil
 
-          @ensure_janitor_creates = nil
-          @ensure_janitor_archives = nil
-          @ensure_janitor_drops = nil
-          @enable_janitorial_work = nil
+          @janitorial_creates_needed = nil
+          @janitorial_archives_needed = nil
+          @janitorial_drops_needed = nil
         end
       end
     end
