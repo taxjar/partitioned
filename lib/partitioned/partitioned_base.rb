@@ -253,7 +253,7 @@ module Partitioned
       # For a parent table name foos, that would be foos_partitions
       #
       partition.schema_name lambda {|model|
-        return model.table_name + '_partitions'
+        return model.table_name.split('.').last + '_partitions'
       }
 
       #
@@ -367,6 +367,13 @@ module Partitioned
     end
 
     ##
+    # :method: archive_old_partitions
+    # delegated to Partitioned::PartitionedBase::PartitionManager#archive_old_partitions
+    def self.archive_old_partitions
+      partition_manager.archive_old_partitions
+    end
+
+    ##
     # :method: drop_old_partitions
     # delegated to Partitioned::PartitionedBase::PartitionManager#drop_old_partitions
     def self.drop_old_partitions
@@ -383,8 +390,8 @@ module Partitioned
     ##
     # :method: archive_old_partition
     # delegated to Partitioned::PartitionedBase::PartitionManager#archive_old_partition
-    def self.drop_old_partition(*partition_key_values)
-      partition_manager.drop_archive_partition(*partition_key_values)
+    def self.archive_old_partition(*partition_key_values)
+      partition_manager.archive_old_partition(*partition_key_values)
     end
 
     ##

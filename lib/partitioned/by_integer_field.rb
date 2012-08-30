@@ -23,6 +23,11 @@ module Partitioned
       return integer_field_value / partition_table_size * partition_table_size
     end
 
+    def self.partition_generate_range(start_value, end_value, step = :default)
+      step = partition_table_size if step == :default
+      return Range.new(start_value, end_value).step(step)
+    end
+
     partitioned do |partition|
       partition.on lambda {|model| return model.partition_integer_field }
 
