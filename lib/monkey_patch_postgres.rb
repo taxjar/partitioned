@@ -28,6 +28,23 @@ module ActiveRecord::ConnectionAdapters
   # to take advantage of these SQL builders.
   #
   class PostgreSQLAdapter < AbstractAdapter
+
+    #
+    # Returns the sequence name for a table's primary key or some other specified key.
+    #
+    # the default version strips off the schema name on the table (if it exists), as:
+    #   serial_sequence(table_name, pk || 'id').split('.').last
+    # i can't see any good reason for that -- in fact, it seems completely
+    # broken -- if you have a table public.foos and other.foos, you'll fail to
+    # get the correct schema if you fetch the default schema name from model
+    # associated with other.foos
+    #
+    def default_sequence_name(table_name, pk = nil) #:nodoc:
+      serial_sequence(table_name, pk || 'id')
+    rescue ActiveRecord::StatementInvalid
+      "#{table_name}_#{pk || 'id'}_seq"
+    end
+
     #
     # Get the next value in a sequence. Used on INSERT operation for
     # partitioning like by_id because the ID is required before the insert
