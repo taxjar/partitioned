@@ -1,6 +1,7 @@
 require 'active_record'
 require 'active_record/base'
 require 'active_record/connection_adapters/abstract_adapter'
+require 'active_record/connection_adapters/postgresql_adapter'
 
 #
 # Patching {ActiveRecord::ConnectionAdapters::TableDefinition} and
@@ -41,7 +42,7 @@ module ActiveRecord::ConnectionAdapters
     #
     def default_sequence_name(table_name, pk = nil) #:nodoc:
       serial_sequence(table_name, pk || 'id')
-    rescue ActiveRecord::StatementInvalid
+    rescue ActiveRecord::StatementInvalid => e
       "#{table_name}_#{pk || 'id'}_seq"
     end
 

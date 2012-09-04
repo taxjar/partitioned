@@ -288,7 +288,9 @@ module Partitioned
       # The child table is defined by the partition key values passed in.
       #
       partition.parent_table_schema_name lambda {|model, *partition_key_values|
-        # this should be a connection_adapter thing
+        table_parts = model.table_name.split('.')
+        # table_parts should be either ["table_name"] or ["schema_name", "table_name"]
+        return table_parts.first if table_parts.length == 2
         return "public"
       }
 
