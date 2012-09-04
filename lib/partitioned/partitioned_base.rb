@@ -252,8 +252,24 @@ module Partitioned
       #
       # For a parent table name foos, that would be foos_partitions
       #
+      # N.B.: if the parent table is not in the default schema ("public") the name of the
+      # partition schema is prefixed by the schema name of the parent table and an
+      # underscore.  That is, if a parent table schema/table name is "other.foos"
+      # the schema for its partitions will be "other_foos_partitions"
+      #
       partition.schema_name lambda {|model|
-        return model.table_name.split('.').last + '_partitions'
+        schema_parts = []
+        table_parts = model.table_name.split('.')
+        # table_parts should be either ["table_name"] or ["schema_name", "table_name"]
+        if table_parts.length == 2
+          # XXX should we find the schema_path here and accept anything in the path as "public"
+          unless table_parts.first == "public"
+            schema_parts << table_parts.first
+          end
+        end
+        schema_parts << table_parts.last
+        schema_parts << 'partitions'
+        return schema_parts.join('_')
       }
 
       #
