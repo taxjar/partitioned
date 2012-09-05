@@ -13,6 +13,40 @@ module ActiveRecord
   # Patches for Persistence to allow certain partitioning (that related to the primary key) to work.
   #
   module Persistence
+    # Deletes the record in the database and freezes this instance to reflect
+    # that no changes should be made (since they can't be persisted).
+    def destroy
+      destroy_associations
+
+      if persisted?
+        IdentityMap.remove(self) if IdentityMap.enabled?
+        pk         = self.class.primary_key
+        column     = self.class.columns_hash[pk]
+        substitute = connection.substitute_at(column, 0)
+
+        using_arel_table = dynamic_arel_table
+        relation = self.class.unscoped.where(
+          using_arel_table[pk].eq(substitute))
+
+        relation.bind_values = [[column, id]]
+        relation.delete_all
+      end
+
+      @destroyed = true
+      freeze
+    end
+
+    # Updates the associated record with values matching those of the instance attributes.
+    # Returns the number of affected rows.
+    def update(attribute_names = @attributes.keys)
+      attributes_with_values = arel_attributes_values(false, false, attribute_names)
+      return 0 if attributes_with_values.empty?
+      klass = self.class
+      using_arel_table = dynamic_arel_table
+      stmt = klass.unscoped.where(using_arel_table[klass.primary_key].eq(id)).arel.compile_update(attributes_with_values)
+      klass.connection.update stmt
+    end
+
     #
     # patch the create method to prefetch the primary key if needed
     #

@@ -159,6 +159,10 @@ module Partitioned
       # delegated to Partitioned::PartitionedBase::PartitionManager::SqlAdapter#partition_table_name
 
       ##
+      # :method: partition_table_alias_name
+      # delegated to Partitioned::PartitionedBase::PartitionManager::SqlAdapter#partition_table_alias_name
+
+      ##
       # :method: sql_adapter
       # delegated to Partitioned::PartitionedBase#sql_adapter
 
@@ -169,7 +173,9 @@ module Partitioned
       extend Forwardable
       def_delegators :parent_table_class, :sql_adapter, :configurator
       def_delegators :sql_adapter, :drop_partition_table, :create_partition_table, :add_partition_table_index,
-         :add_references_to_partition_table, :create_partition_schema, :add_parent_table_rules, :partition_table_name
+         :add_references_to_partition_table, :create_partition_schema, :add_parent_table_rules,
+         :partition_table_name, :partition_table_alias_name
+
     end
   end
 end

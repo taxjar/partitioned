@@ -61,7 +61,7 @@ module Partitioned
     # @return [String] the fully qualified name of the database table, ie: foos_partitions.p17
     def partition_table_name
       symbolized_attributes = attributes.symbolize_keys
-      return self.class.partition_name(*self.class.partition_keys.map{|attribute_name| symbolized_attributes[attribute_name]})
+      return self.class.partition_table_name(*self.class.partition_keys.map{|attribute_name| symbolized_attributes[attribute_name]})
     end
 
     #
@@ -119,7 +119,7 @@ module Partitioned
       new_arel_table = @arel_tables[key_values]
       arel_engine_hash = {:engine => self.arel_engine}
       arel_engine_hash[:as] = as unless as.blank?
-      new_arel_table = Arel::Table.new(self.partition_name(*key_values), arel_engine_hash)
+      new_arel_table = Arel::Table.new(self.partition_table_name(*key_values), arel_engine_hash)
       return new_arel_table
     end
 
@@ -142,7 +142,7 @@ module Partitioned
     # @return [Hash] the from scoping
     scope :from_partition_scope, lambda { |target_class, *partition_field|
       {
-        :from => "#{target_class.partition_name(*partition_field)} AS #{target_class.table_name}"
+        :from => "#{target_class.partition_table_name(*partition_field)} AS #{target_class.partition_table_alias_name(*partition_field)}"
       }
     }
 
@@ -174,7 +174,7 @@ module Partitioned
     # @return [Hash] the from scoping
     scope :from_partitioned_without_alias_scope, lambda { |target_class, *partition_field|
       {
-        :from => target_class.partition_name(*partition_field)
+        :from => target_class.partition_table_name(*partition_field)
       }
     }
 
@@ -327,6 +327,13 @@ module Partitioned
       }
 
       #
+      # A reasonable alias for this table
+      #
+      partition.table_alias_name lambda {|model, *partition_key_values|
+        return model.configurator.parent_table_name(*partition_key_values).gsub('.', '_')
+      }
+
+      #
       # The name of the child table without a schema name or prefix. this is used to
       # build child table names for multi-level partitions.
       #
@@ -444,14 +451,18 @@ module Partitioned
     # :method: partition_table_name
     # delegated to Partitioned::PartitionedBase::PartitionManager#partition_table_name
     def self.partition_table_name(*partition_key_values)
+      # XXX this is a freaking hack
+      if arel_table.table_alias.nil?
+        arel_table.table_alias = "naf_jobs"
+      end
       return partition_manager.partition_table_name(*partition_key_values)
     end
 
     ##
-    # :method: partition_name
-    # delegated to Partitioned::PartitionedBase::PartitionManager#partition_table_name
-    def self.partition_name(*partition_key_values)
-      return partition_manager.partition_table_name(*partition_key_values)
+    # :method: partition_table_alias_name
+    # delegated to Partitioned::PartitionedBase::PartitionManager#partition_table_alias_name
+    def self.partition_table_alias_name(*partition_key_values)
+      return partition_manager.partition_table_alias_name(*partition_key_values)
     end
   end
 end

@@ -40,7 +40,7 @@ module Partitioned
 
         attr_accessor :on_field, :indexes, :foreign_keys, :last_partitions_order_by_clause,
            :schema_name, :name_prefix, :base_name,
-           :part_name, :table_name, :parent_table_schema_name,
+           :part_name, :table_name, :table_alias_name, :parent_table_schema_name,
            :parent_table_name, :check_constraint, :encoded_name,
            :janitorial_creates_needed, :janitorial_archives_needed, :janitorial_drops_needed
         
@@ -58,6 +58,7 @@ module Partitioned
           @part_name = nil
 
           @table_name = nil
+          @table_alias_name = nil
 
           @parent_table_schema_name = nil
           @parent_table_name = nil

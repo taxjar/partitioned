@@ -105,7 +105,7 @@
 #    partitioned do |partition|
 #      partition.foreign_key lambda {|model, *partition_key_values|
 #        return Configurator::Data::ForeignKey.
-#                    new(:employee_id, Employee.partition_name(*partition_key_values), :id)
+#                    new(:employee_id, Employee.partition_table_name(*partition_key_values), :id)
 #      }
 #    end
 #  end
@@ -702,7 +702,7 @@ class Award < ByEmployeeCreatedAt
 
   partitioned do |partition|
     partition.foreign_key lambda {|model, *partition_key_values|
-      return Configurator::Data::ForeignKey.new(:employee_id, Employee.partition_name(*partition_key_values), :id)
+      return Configurator::Data::ForeignKey.new(:employee_id, Employee.partition_table_name(*partition_key_values), :id)
     }
   end
   

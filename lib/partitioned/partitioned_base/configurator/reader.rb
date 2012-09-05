@@ -105,6 +105,13 @@ module Partitioned
         end
 
         #
+        # A reasonable alias for this partition table
+        #
+        def table_alias_name(*partition_key_values)
+          return collect_first(*partition_key_values, &:table_alias_name)
+        end
+
+        #
         # The name of the child table without the schema name or name prefix.
         #
         def base_name(*partition_key_values)

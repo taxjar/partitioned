@@ -127,6 +127,13 @@ module Partitioned
       end
 
       #
+      # A reasonable alias for the partition table
+      #
+      def partition_table_alias_name(*partition_key_values)
+        return configurator.table_alias_name(*partition_key_values)
+      end
+
+      #
       # Create a single child table.
       #
       def create_partition_table(*partition_key_values)

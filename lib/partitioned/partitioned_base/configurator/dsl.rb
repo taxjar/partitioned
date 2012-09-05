@@ -550,6 +550,11 @@ module Partitioned
           data.table_name = value
         end
 
+        # a reasonable alias for this table
+        def table_alias_name(value)
+          data.table_alias_name = value
+        end
+
         #
         # The table name of the table who is the direct ancestor of a child table.
         #
