@@ -24,7 +24,7 @@ module ActiveRecord
         column     = self.class.columns_hash[pk]
         substitute = connection.substitute_at(column, 0)
 
-        using_arel_table = self.respond_to? :dynamic_arel_table ? dynamic_arel_table() : self.class.arel_table
+        using_arel_table = self.respond_to?(:dynamic_arel_table) ? dynamic_arel_table() : self.class.arel_table
         relation = self.class.unscoped.where(
           using_arel_table[pk].eq(substitute))
 
@@ -42,7 +42,7 @@ module ActiveRecord
       attributes_with_values = arel_attributes_values(false, false, attribute_names)
       return 0 if attributes_with_values.empty?
       klass = self.class
-      using_arel_table = self.respond_to? :dynamic_arel_table ? dynamic_arel_table() : klass.arel_table
+      using_arel_table = self.respond_to?(:dynamic_arel_table) ? dynamic_arel_table() : klass.arel_table
       stmt = klass.unscoped.where(using_arel_table[klass.primary_key].eq(id)).arel.compile_update(attributes_with_values)
       klass.connection.update stmt
     end
@@ -99,7 +99,7 @@ module ActiveRecord
       # that are used to determine the child table this insert should be
       # redirected to)
       #
-      actual_arel_table = @klass.dynamic_arel_table(Hash[*values.map{|k,v| [k.name,v]}.flatten]) if @klass.respond_to? :dynamic_arel_table
+      actual_arel_table = @klass.dynamic_arel_table(Hash[*values.map{|k,v| [k.name,v]}.flatten]) if @klass.respond_to?(:dynamic_arel_table)
       actual_arel_table = @table unless actual_arel_table
       im.into actual_arel_table
 
