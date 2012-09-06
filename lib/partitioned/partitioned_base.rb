@@ -135,19 +135,8 @@ module Partitioned
       return self.class.dynamic_arel_table(key_values, as)
     end
 
-    # :from_partition_scope is generally not used directly,
-    # use helper self.from_partition so that the derived class
-    # can be passed into :from_partition_scope
     #
-    # @return [Hash] the from scoping
-    scope :from_partition_scope, lambda { |target_class, *partition_field|
-      {
-        :from => "#{target_class.partition_table_name(*partition_field)} AS #{target_class.partition_table_alias_name(*partition_field)}"
-      }
-    }
-
-    #
-    # Real scope (uses #from_partition_scope).  This scope is used to target the
+    # This scoping is used to target the
     # active record find() to a specific child table and alias it to the name of the
     # parent table (so activerecord can generally work with it)
     #
@@ -157,29 +146,16 @@ module Partitioned
     #
     # where KEY is the key value(s) used as the check constraint on Foo's table.
     #
-    # Because the scope is specific to a class (a class method) but unlike
-    # class methods is not inherited, one  must use this form (#from_partition) instead
-    # of #from_partition_scope to get the most derived classes specific active record scope.
-    #
     # @param [*Array<Object>] partition_field the field values to partition on
     # @return [Hash] the scoping
     def self.from_partition(*partition_field)
-      from_partition_scope(self, *partition_field)
+      table_alias_name = partition_table_alias_name(*partition_field)
+      from("#{partition_table_name(*partition_field)} AS #{table_alias_name}").
+        tap{|relation| relation.table.table_alias = table_alias_name}
     end
 
-    # :from_partitioned_without_alias_scope is generally not used directly,
-    # use helper self.from_partitioned_without_alias so that the derived class
-    # can be passed into :from_partitioned_without_alias_scope
     #
-    # @return [Hash] the from scoping
-    scope :from_partitioned_without_alias_scope, lambda { |target_class, *partition_field|
-      {
-        :from => target_class.partition_table_name(*partition_field)
-      }
-    }
-
-    #
-    # Real scope (uses #from_partitioned_without_alias_scope). This scope is used to target the
+    # This scope is used to target the
     # active record find() to a specific child table. Is probably best used in advanced
     # activerecord queries when a number of tables are involved in the query.
     #
@@ -205,7 +181,9 @@ module Partitioned
     # @param [*Array<Object>] partition_field the field values to partition on
     # @return [Hash] the scoping
     def self.from_partitioned_without_alias(*partition_field)
-      from_partitioned_without_alias_scope(self, *partition_field)
+      table_alias_name = partition_table_name(*partition_field)
+      from(table_alias_name).
+        tap{|relation| relation.table.table_alias = table_alias_name}
     end
 
     #
@@ -451,10 +429,6 @@ module Partitioned
     # :method: partition_table_name
     # delegated to Partitioned::PartitionedBase::PartitionManager#partition_table_name
     def self.partition_table_name(*partition_key_values)
-      # XXX this is a freaking hack
-      if arel_table.table_alias.nil?
-        arel_table.table_alias = "naf_jobs"
-      end
       return partition_manager.partition_table_name(*partition_key_values)
     end
 
