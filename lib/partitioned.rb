@@ -1,8 +1,4 @@
-require 'monkey_patch_activerecord'
-require 'monkey_patch_postgres'
-
 require 'partitioned/bulk_methods_mixin'
-require 'partitioned/active_record_overrides'
 require 'partitioned/partitioned_base/configurator.rb'
 require 'partitioned/partitioned_base/configurator/data'
 require 'partitioned/partitioned_base/configurator/dsl'
