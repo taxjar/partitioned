@@ -433,6 +433,13 @@ module Partitioned
     end
 
     ##
+    # :method: partition_name
+    # delegated to Partitioned::PartitionedBase::PartitionManager#partition_table_name
+    def self.partition_name(*partition_key_values)
+      return partition_manager.partition_table_name(*partition_key_values)
+    end
+
+    ##
     # :method: partition_table_alias_name
     # delegated to Partitioned::PartitionedBase::PartitionManager#partition_table_alias_name
     def self.partition_table_alias_name(*partition_key_values)
