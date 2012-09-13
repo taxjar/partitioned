@@ -67,7 +67,6 @@ module Partitioned
         add_parent_table_rules
       end
 
-      protected
       #
       # An array of key values (each key value is an array of keys) that represent
       # the child partitions that should be created.
