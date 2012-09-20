@@ -15,3 +15,4 @@ gem "jquery-rails"
 
 # To use debugger
 # gem 'ruby-debug'
+gem "bulk_data_methods" , :git => 'git@github.com:fiksu/bulk_data_methods.git'
