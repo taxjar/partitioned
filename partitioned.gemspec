@@ -16,7 +16,8 @@ Gem::Specification.new do |s|
  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
  s.require_path = 'lib'
  s.homepage    = 'http://github.com/fiksu/partitioned'
- s.add_dependency('pg')
- s.add_dependency "rails", '>= 3.2.8'
- s.add_dependency('rspec-rails')
+ s.add_dependency 'pg'
+ s.add_dependency 'rails', '>= 3.2.8'
+ s.add_dependency 'rspec-rails'
+ s.add_dependency 'bulk_data_methods', '1.0.0'
 end
