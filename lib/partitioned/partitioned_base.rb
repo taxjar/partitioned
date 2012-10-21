@@ -162,7 +162,7 @@ module Partitioned
     #
     # Use as:
     #
-    #   Foo.from_partitioned_without_alias(KEY).find(:all, :select => "*")
+    #   Foo.from_partition_without_alias(KEY).find(:all, :select => "*")
     #
     # where KEY is the key value(s) used as the check constraint on Foo's table.
     #
@@ -175,13 +175,9 @@ module Partitioned
     # which fails because table foos is not referenced.  using the form #from_partition
     # is almost always the correct thing when using activerecord.
     #
-    # Because the scope is specific to a class (a class method) but unlike
-    # class methods is not inherited, one  must use this form (#from_partitioned_without_alias) instead
-    # of #from_partitioned_without_alias_scope to get the most derived classes specific active record scope.
-    #
     # @param [*Array<Object>] partition_field the field values to partition on
     # @return [Hash] the scoping
-    def self.from_partitioned_without_alias(*partition_field)
+    def self.from_partition_without_alias(*partition_field)
       table_alias_name = partition_table_name(*partition_field)
       from(table_alias_name).
         tap{|relation| relation.table.table_alias = table_alias_name}
