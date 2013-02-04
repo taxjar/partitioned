@@ -42,7 +42,8 @@ module Partitioned
            :schema_name, :name_prefix, :base_name,
            :part_name, :table_name, :table_alias_name, :parent_table_schema_name,
            :parent_table_name, :check_constraint, :encoded_name,
-           :janitorial_creates_needed, :janitorial_archives_needed, :janitorial_drops_needed
+           :janitorial_creates_needed, :janitorial_archives_needed, :janitorial_drops_needed,
+           :after_partition_table_create_hooks
         
         def initialize
           @on_field = nil
@@ -70,6 +71,8 @@ module Partitioned
           @janitorial_creates_needed = nil
           @janitorial_archives_needed = nil
           @janitorial_drops_needed = nil
+
+          @after_partition_table_create_hooks = []
         end
       end
     end

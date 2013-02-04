@@ -263,6 +263,16 @@ module Partitioned
           end
         end
 
+        def after_partition_table_create_hook(method_name)
+          if method_name.is_a? Proc
+            data.after_partition_table_create_hooks << method_name
+          else
+            # XXX should be a symbol
+            data.after_partition_table_create_hooks << lambda {|model,*partition_key_values| model.send(method_name, *partition_key_values)}
+          end
+        end
+
+
         #
         # Define the check constraint for a given child table.
         #

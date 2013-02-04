@@ -30,6 +30,7 @@ module Partitioned
           @janitorial_creates_needed = nil
           @janitorial_archives_needed = nil
           @janitorial_drops_needed = nil
+          @after_partition_table_create_hooks = nil
         end
 
         #
@@ -165,6 +166,10 @@ module Partitioned
             @janitorial_drops_needed = collect_first(&:janitorial_drops_needed)
           end
           return @janitorial_drops_needed
+        end
+
+        def run_after_partition_table_create_hooks(*partition_key_values)
+          collect_from_collection(*partition_key_values, &:after_partition_table_create_hooks)
         end
 
         protected
