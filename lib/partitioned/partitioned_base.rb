@@ -103,7 +103,7 @@ module Partitioned
     #
     # @return [{SqlAdapter}] the object used to create sql statements for this partitioned model
     def self.sql_adapter
-      @sql_adapter = self::SqlAdapter.new(self) unless @sql_adapter.present?
+      @sql_adapter ||= connection.partitioned_sql_adapter(self)
       return @sql_adapter
     end
     

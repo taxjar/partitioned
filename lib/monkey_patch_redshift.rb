@@ -1,7 +1,7 @@
 require 'active_record'
 require 'active_record/base'
 require 'active_record/connection_adapters/abstract_adapter'
-require 'active_record/connection_adapters/postgresql_adapter'
+require 'active_record/connection_adapters/redshift_adapter'
 
 #
 # Patching {ActiveRecord::ConnectionAdapters::TableDefinition} and
@@ -10,27 +10,14 @@ require 'active_record/connection_adapters/postgresql_adapter'
 #
 module ActiveRecord::ConnectionAdapters
   #
-  # Patches associated with building check constraints.
-  #
-  class TableDefinition
-    #
-    # Builds a SQL check constraint
-    #
-    # @param [String] constraint a SQL constraint
-    def check_constraint(constraint)
-      @columns << Struct.new(:to_sql).new("CHECK (#{constraint})")
-    end
-  end
-
-  #
   # Patches extending the postgres adapter with new operations for managing
   # sequences (and sets of sequence values), schemas and foreign keys.
   # These should go into AbstractAdapter allowing any database adapter
   # to take advantage of these SQL builders.
   #
-  class PostgreSQLAdapter < AbstractAdapter
+  class RedshiftAdapter < AbstractAdapter
     def partitioned_sql_adapter(model)
-      return Partitioned::PartitionedBase::SqlAdapter.new(model)
+      return Partitioned::PartitionedBase::RedshiftSqlAdapter.new(model)
     end
 
     #
