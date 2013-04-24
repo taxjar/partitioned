@@ -20,4 +20,5 @@ Gem::Specification.new do |s|
  s.add_dependency 'rails', '>= 3.2.8'
  s.add_dependency 'rspec-rails'
  s.add_dependency 'bulk_data_methods', '1.0.0'
+ s.add_dependency 'activerecord-redshift-adapter'
 end
