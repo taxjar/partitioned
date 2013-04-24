@@ -309,7 +309,7 @@ module Partitioned
       # A reasonable alias for this table
       #
       partition.table_alias_name lambda {|model, *partition_key_values|
-        return model.table_name
+        return model.table_name.gsub(/[^a-zA-Z0-9]/, '_')
       }
 
       #
@@ -444,7 +444,7 @@ module Partitioned
     # :method: partition_table_alias_name
     # delegated to Partitioned::PartitionedBase::PartitionManager#partition_table_alias_name
     def self.partition_table_alias_name(*partition_key_values)
-      return partition_manager.partition_table_alias_name(*partition_key_values)
+      return partition_manager.partition_table_alias_name(*partition_key_values).gsub(/[^a-zA-Z0-9]/, '_')
     end
   end
 end
