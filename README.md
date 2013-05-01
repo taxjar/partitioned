@@ -65,7 +65,7 @@ create table companies
 );
 
 -- add some companies
-insert into table companies (name) values
+insert into companies (name) values
   ('company 1'),('company 2'),('company 2');
 
 -- this is the parent table
