@@ -207,4 +207,4 @@ update employees_partitions.p1 set name = 'Not Keith' where id = 1;
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-Copyright 2010-2012 fiksu.com, inc, all rights reserved
+Copyright 2010-2013 fiksu.com, inc, all rights reserved
