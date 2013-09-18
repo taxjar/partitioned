@@ -116,48 +116,14 @@ module Partitioned
       # Create a single child table.
       #
       def create_partition_table(*partition_key_values)
-        # XXX needs to set search path if parent table is not in search path
-        # show search_path
-        # set search_path to '$user', 'public', 'bids_partitions';
-
-        # select * from pg_table_def where tablename = 'bids' and schemaname = 'public';
-        ## column, type, encoding, distkey, sortkey, not null
-        sortkeys = []
-        sql_columns = []
-
-        sql = "select * from pg_table_def where tablename = '#{configurator.parent_table_name(*partition_key_values)}' and schemaname = '#{configurator.parent_table_schema_name(*partition_key_values)}'"
-        sql_column_rows = execute(sql)
-        sql_column_rows.each do |row|
-          column_info = []
-          column_name = row['column']
-          column_info << column_name
-          column_info << row['type']
-          if row['notnull'] == "t"
-            column_info << "not null"
-          end
-          if row['encoding'] != 'none'
-            column_info << "encode #{row['encoding']}"
-          end
-          if row['sortkey'] != "0"
-            sortkeys[row['sortkey'].to_i - 1] = column_name
-          end
-          sql_columns << column_info.join(" ")
-        end
-
-        if sortkeys.blank?
-          sql_sortkeys = ""
-        else
-          sql_sortkeys = " sortkey (#{sortkeys.join(',')})"
-        end
-        sql = <<-SQL
-         create table #{configurator.table_name(*partition_key_values)}
-         (
-          #{sql_columns.join(', ')}
-         ) #{sql_sortkeys}
-        SQL
-        execute(sql)
-
-        # unset search_path
+        options = {
+          :partitioned_model => @parent_table_class,
+          :temporary => false,
+          :table_name => configurator.table_name(*partition_key_values)
+        }
+        @redshift_table_creator =
+          ::ActiverecordRedshift::TableManager.new(@parent_table_class.connection, options)
+        @redshift_table_creator.duplicate_table
       end
 
       #
