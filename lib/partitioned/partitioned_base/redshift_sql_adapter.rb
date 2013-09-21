@@ -119,7 +119,7 @@ module Partitioned
         options = {
           :partitioned_model => @parent_table_class,
           :temporary => false,
-          :table_name => configurator.table_name(*partition_key_values)
+          :table_name => configurator.part_name(*partition_key_values)
         }
         @redshift_table_creator =
           ::ActiverecordRedshift::TableManager.new(@parent_table_class.connection, options)
