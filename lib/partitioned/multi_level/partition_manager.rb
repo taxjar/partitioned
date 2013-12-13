@@ -30,6 +30,7 @@ module Partitioned
         if is_leaf_partition?(*partition_key_values)
           add_partition_table_index(*partition_key_values)  
           add_references_to_partition_table(*partition_key_values)
+          configurator.run_after_partition_table_create_hooks(*partition_key_values)
         else
           add_parent_table_rules(*partition_key_values)
         end
