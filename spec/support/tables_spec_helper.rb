@@ -6,8 +6,12 @@ module TablesSpecHelper
     require "bulk_data_methods"
     include BulkDataMethods::Mixin
 
-    has_many :employees, -> { where("companies.id == employees.companies_id") }, :class_name => 'Company'
-  end
+    if ActiveRecord::VERSION::MAJOR >= 4
+      has_many :employees, -> { where "companies.id = employees.companies_id" }, :class_name => 'Company'
+    else
+      has_many :employees, :class_name => 'Company', :conditions => "companies.id = employees.companies_id"
+    end
+ end
 
   def create_tables
     ActiveRecord::Base.connection.execute <<-SQL

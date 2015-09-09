@@ -1,6 +1,7 @@
 
 require 'patches/active_record/persistence'
 require 'patches/active_record/relation'
+require 'patches/active_record/relation/query_methods'
 require 'patches/active_record/connection_adapters/postgresql_adapter'
 
 require 'partitioned/active_record_overrides'

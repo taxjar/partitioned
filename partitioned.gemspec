@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.require_path   = 'lib'
   s.homepage       = 'http://github.com/fiksu/partitioned'
 
-  s.add_development_dependency 'rails', '~> 4.1.0' # Ruby on Rails web framework
+  s.add_development_dependency 'rails', '~> 3.2.0' # Ruby on Rails web framework
   s.add_development_dependency 'pg', '~> 0.18.2' # Ruby interface to the PostgreSQL
   s.add_development_dependency 'rspec-rails', '~> 3.3.2' # Behaviour driven development
   s.add_development_dependency 'bulk_data_methods', '~> 3.0.0' # Bulk insert for ActiveRecord

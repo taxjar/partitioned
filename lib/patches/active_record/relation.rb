@@ -1,15 +1,13 @@
 require 'active_record'
 require 'active_record/relation.rb'
 
-# Patching to allow Patches to allow certain partitioning (that are related to the primary key) to work.
-#
 module ActiveRecord
 
   class Relation
     
     # This method is patched to use a table name that is derived from
     # the attribute values.
-    def insert(values) # :nodoc:
+    def insert(values)
       primary_key_value = nil
 
       if primary_key && Hash === values
@@ -27,11 +25,20 @@ module ActiveRecord
       # ****** BEGIN PATCH ******
       actual_arel_table = @klass.dynamic_arel_table(Hash[*values.map{|k,v| [k.name,v]}.flatten]) if @klass.respond_to?(:dynamic_arel_table)
       actual_arel_table = @table unless actual_arel_table
-      #im.into @table
+#      im.into @table
       im.into actual_arel_table
-      # ****** END PATCH ******
+      # ****** BEGIN PATCH ******
 
-      substitutes, binds = substitute_values values
+      conn = @klass.connection
+
+      substitutes = values.sort_by { |arel_attr,_| arel_attr.name }
+      binds       = substitutes.map do |arel_attr, value|
+        [@klass.columns_hash[arel_attr.name], value]
+      end
+
+      substitutes.each_with_index do |tuple, i|
+        tuple[1] = conn.substitute_at(binds[i][0], i)
+      end
 
       if values.empty? # empty insert
         im.values = Arel.sql(connection.empty_insert_statement_value)
@@ -39,7 +46,7 @@ module ActiveRecord
         im.insert substitutes
       end
 
-      @klass.connection.insert(
+      conn.insert(
         im,
         'SQL',
         primary_key,

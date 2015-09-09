@@ -6,6 +6,18 @@ module ActiveRecord
 
   module ConnectionAdapters
 
+    # Patches associated with building check constraints.
+    #
+    class TableDefinition
+      #
+      # Builds a SQL check constraint
+      #
+      # @param [String] constraint a SQL constraint
+      def check_constraint(constraint)
+        @columns << Struct.new(:to_sql).new("CHECK (#{constraint})")
+      end
+    end
+
     # Patches extending the postgres adapter with new operations for managing
     # sequences (and sets of sequence values), schemas and foreign keys.
     #
