@@ -358,6 +358,8 @@ puts "total records: #{$total_records}"
 require File.expand_path(File.dirname(__FILE__) + "/lib/company")
 
 class Employee < Partitioned::ById
+  include BulkDataMethods::Mixin
+        
   belongs_to :company, :class_name => 'Company'
   attr_accessible :company_id, :salary, :name
 

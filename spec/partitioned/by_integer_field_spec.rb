@@ -10,8 +10,9 @@ module Partitioned
 
     module IntegerField
       class Employee < Partitioned::ByIntegerField
+        include BulkDataMethods::Mixin
+        
         belongs_to :company, :class_name => 'Company'
-        attr_accessible :name, :integer_field, :company_id
 
         def self.partition_integer_field
           return :integer_field
@@ -41,7 +42,7 @@ module Partitioned
     describe "model is abstract class" do
 
       it "returns true" do
-        class_by_integer_field.abstract_class.should be_true
+        expect(class_by_integer_field.abstract_class).to be_truthy
       end
 
     end # model is abstract class
@@ -49,7 +50,7 @@ module Partitioned
     describe "#partition_table_size" do
 
       it "returns 1" do
-        class_by_integer_field.partition_table_size.should == 1
+        expect(class_by_integer_field.partition_table_size).to eq(1)
       end
 
     end # #partition_table_size
@@ -57,9 +58,9 @@ module Partitioned
     describe "#partition_integer_field" do
 
       it "raises MethodNotImplemented" do
-        lambda {
+        expect {
           class_by_integer_field.partition_integer_field
-        }.should raise_error(MethodNotImplemented)
+        }.to raise_error(MethodNotImplemented)
       end
 
     end # #partition_integer_field
@@ -69,7 +70,7 @@ module Partitioned
       context "when call method with param equal five" do
 
         it "returns 5" do
-          class_by_integer_field.partition_normalize_key_value(5).should == 5
+          expect(class_by_integer_field.partition_normalize_key_value(5)).to eq(5)
         end
 
       end
@@ -85,7 +86,7 @@ module Partitioned
       context "checks data in the on_field is Proc" do
 
         it "returns Proc" do
-          data.on_field.should be_is_a Proc
+          expect(data.on_field).to be_is_a Proc
         end
 
       end # checks data in the on_field is Proc
@@ -93,7 +94,7 @@ module Partitioned
       context "checks data in the check_constraint is Proc" do
 
         it "returns Proc" do
-          data.check_constraint.should be_is_a Proc
+          expect(data.check_constraint).to be_is_a Proc
         end
 
       end # checks data in the check_constraint is Proc
@@ -101,7 +102,7 @@ module Partitioned
       context "checks data in the on_field" do
 
         it "returns on_field" do
-          data.on_field.call(@employee).should == :integer_field
+          expect(data.on_field.call(@employee)).to eq(:integer_field)
         end
 
       end # checks data in the on_field
@@ -109,7 +110,7 @@ module Partitioned
       context "checks data in the last_partitions_order_by_clause" do
 
         it "returns last_partitions_order_by_clause" do
-          data.last_partitions_order_by_clause.should == "substring(tablename, 2)::integer desc"
+          expect(data.last_partitions_order_by_clause).to eq("substring(tablename, 2)::integer desc")
         end
 
       end # checks data in the last_partitions_order_by_clause
@@ -117,7 +118,7 @@ module Partitioned
       context "checks data in the check_constraint" do
 
         it "returns check_constraint" do
-          data.check_constraint.call(@employee, 1).should == "( integer_field = 1 )"
+          expect(data.check_constraint.call(@employee, 1)).to eq("( integer_field = 1 )")
         end
 
       end # checks data in the check_constraint
@@ -125,11 +126,11 @@ module Partitioned
       context "checks data in the check_constraint, when partition_table_size != 1" do
 
         before do
-          @employee.stub!(:partition_table_size).and_return(2)
+          allow(@employee).to receive(:partition_table_size).and_return(2)
         end
 
         it "returns check_constraint" do
-          data.check_constraint.call(@employee, 1).should == "( integer_field >= 0 and integer_field < 2 )"
+          expect(data.check_constraint.call(@employee, 1)).to eq("( integer_field >= 0 and integer_field < 2 )")
         end
 
       end # checks data in the check_constraint, when partition_table_size != 1

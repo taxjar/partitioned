@@ -493,6 +493,8 @@ class Partitioned::ByStartDate < Partitioned::ByMonthlyTimeField
 end
 
 class Employee < Partitioned::ByStartDate
+  include BulkDataMethods::Mixin
+        
   belongs_to :company, :class_name => 'Company'
   attr_accessible :company_id, :start_date, :salary, :name
 

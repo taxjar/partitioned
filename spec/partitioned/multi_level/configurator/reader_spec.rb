@@ -46,7 +46,7 @@ module Partitioned
           context "checking arrays length" do
 
             it "returns 6" do
-              reader.send(:using_configurators).length.should == 6
+              expect(reader.send(:using_configurators).length).to eq(6)
             end
 
           end # checking array length
@@ -55,13 +55,13 @@ module Partitioned
 
             it "returns 'Partitioned::ById'" do
               for i in 0..2
-                reader.send(:using_configurators)[i].model.to_s.should == "Partitioned::ById"
+                expect(reader.send(:using_configurators)[i].model.to_s).to eq("Partitioned::ById")
               end
             end
 
             it "returns 'Partitioned::ByCreatedAt'" do
               for i in 3..5
-                reader.send(:using_configurators)[i].model.to_s.should == "Partitioned::ByCreatedAt"
+                expect(reader.send(:using_configurators)[i].model.to_s).to eq("Partitioned::ByCreatedAt")
               end
             end
 
@@ -74,8 +74,8 @@ module Partitioned
           context "when on_field value is set by default" do
 
             it "returns [:id, :created_at]" do
-              reader.on_fields.sort{|a,b| a.to_s <=> b.to_s}.
-                  should == [:id, :created_at].sort{|a,b| a.to_s <=> b.to_s}
+              expect(reader.on_fields.sort{|a,b| a.to_s <=> b.to_s}).
+                  to eq([:id, :created_at].sort{|a,b| a.to_s <=> b.to_s})
             end
 
           end # when on_filed value is set by default
@@ -87,7 +87,7 @@ module Partitioned
           context "when parent_table_schema_name value is set without options" do
 
             it "returns public" do
-              reader.parent_table_schema_name.should == "public"
+              expect(reader.parent_table_schema_name).to eq("public")
             end
 
           end # when parent_table_schema_name value is set by default
@@ -95,7 +95,7 @@ module Partitioned
           context "when parent_table_schema_name value is set with options" do
 
             it "returns employees_partitions" do
-              reader.parent_table_schema_name(1, Date.parse("2011-01-03")).should == "employees_partitions"
+              expect(reader.parent_table_schema_name(1, Date.parse("2011-01-03"))).to eq("employees_partitions")
             end
 
           end # when parent_table_schema_name value is set by value
@@ -107,7 +107,7 @@ module Partitioned
           context "when parent_table_name value is set without options" do
 
             it "returns employees" do
-              reader.parent_table_name.should == "employees"
+              expect(reader.parent_table_name).to eq("employees")
             end
 
           end # when parent_table_name value is set without options
@@ -115,7 +115,7 @@ module Partitioned
           context "when parent_table_name value is set with options" do
 
             it "returns employees_partitions.p0" do
-              reader.parent_table_name(1, Date.parse("2011-01-03")).should == "employees_partitions.p1"
+              expect(reader.parent_table_name(1, Date.parse("2011-01-03"))).to eq("employees_partitions.p1")
             end
 
           end # when parent_table_name value is set with options
@@ -125,10 +125,10 @@ module Partitioned
         describe "check_constraint" do
 
           it "returns check_constraint" do
-            reader.check_constraint(1).
-                should == "( id = 1 )"
-            reader.check_constraint(1, Date.parse('2011-10-10')).
-                should == "created_at >= '2011-10-10' AND created_at < '2011-10-17'"
+            expect(reader.check_constraint(1)).
+                to eq("( id = 1 )")
+            expect(reader.check_constraint(1, Date.parse('2011-10-10'))).
+                to eq("created_at >= '2011-10-10' AND created_at < '2011-10-17'")
           end
 
         end # check_constraint
@@ -136,7 +136,7 @@ module Partitioned
         describe "base_name" do
 
           it "returns base_name" do
-            reader.base_name(1, Date.parse('2011-10-10')).should == "1_20111010"
+            expect(reader.base_name(1, Date.parse('2011-10-10'))).to eq("1_20111010")
           end
 
         end # base_name

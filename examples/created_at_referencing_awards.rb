@@ -667,6 +667,8 @@ END_DATE = Date.parse('2011-12-31')
 require File.expand_path(File.dirname(__FILE__) + "/lib/company")
 
 class Employee < Partitioned::ByCreatedAt
+  include BulkDataMethods::Mixin
+        
   belongs_to :company, :class_name => 'Company'
   attr_accessible :created_at, :salary, :name, :company_id
 
@@ -689,6 +691,8 @@ class Employee < Partitioned::ByCreatedAt
 end
 
 class ByEmployeeCreatedAt < Partitioned::ByWeeklyTimeField
+  include BulkDataMethods::Mixin
+        
   self.abstract_class = true
 
   def self.partition_time_field
@@ -696,7 +700,7 @@ class ByEmployeeCreatedAt < Partitioned::ByWeeklyTimeField
   end
 end
 
-class Award < ByEmployeeCreatedAt
+class Award < ByEmployeeCreatedAt        
   belongs_to :employee, :class_name => 'Employee'
   attr_accessible :award_title, :employee_created_at, :employee_id, :awarded_on
 

@@ -10,8 +10,9 @@ module Partitioned
 
     module CreatedAt
       class Employee < Partitioned::ByCreatedAt
+        include BulkDataMethods::Mixin
+        
         belongs_to :company, :class_name => 'Company'
-        attr_accessible :company_id, :name, :created_at
 
         partitioned do |partition|
           partition.index :id, :unique => true
@@ -42,7 +43,7 @@ module Partitioned
     describe "model is abstract class" do
 
       it "returns true" do
-        class_by_created_at.abstract_class.should be_true
+        expect(class_by_created_at.abstract_class).to be_truthy
       end
 
     end # model is abstract class
@@ -50,7 +51,7 @@ module Partitioned
     describe "#partition_time_field" do
 
       it "returns :created_at" do
-        class_by_created_at.partition_time_field.should == :created_at
+        expect(class_by_created_at.partition_time_field).to eq(:created_at)
       end
 
     end # #partition_time_field
