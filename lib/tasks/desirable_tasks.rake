@@ -1,4 +1,4 @@
 # desc "Explaining what the task does"
-# task :desirable do
+# task :partitioned do
 #   # Task goes here
 # end

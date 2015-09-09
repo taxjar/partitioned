@@ -424,6 +424,8 @@ END_DATE = Date.parse('2011-12-31')
 require File.expand_path(File.dirname(__FILE__) + "/lib/company")
 
 class Employee < Partitioned::ByCreatedAt
+  include BulkDataMethods::Mixin
+        
   belongs_to :company, :class_name => 'Company'
   attr_accessible :name, :company_id, :salary, :created_at
 

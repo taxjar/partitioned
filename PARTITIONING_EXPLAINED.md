@@ -30,31 +30,31 @@ Keith:
   correct, that is table inheritance.  no strings between the tables except the schemas are shared.
   well.. there is one string.  child tables will be search for data when the parent table is queried, example:
 
-	psql=# create table a (a1 integer, a2 integer);
-	psql=# create table b () inherits (a);
-	psql=# create table c (c1 text) inherits (a);
-	psql=# insert into c (a1,a2,c1) values (1,2,'three');
-	psql=# insert into b (a1,a2) values (11,22);
-	psql=# insert into a (a1,a2) values (111,222);
-	psql=# select * from a;
-	a1       | a2  
-	-----+-----
-	    111 | 222
-	      11 |   22
-	        1 |     2
-	(3 rows)
+  psql=# create table a (a1 integer, a2 integer);
+  psql=# create table b () inherits (a);
+  psql=# create table c (c1 text) inherits (a);
+  psql=# insert into c (a1,a2,c1) values (1,2,'three');
+  psql=# insert into b (a1,a2) values (11,22);
+  psql=# insert into a (a1,a2) values (111,222);
+  psql=# select * from a;
+  a1       | a2  
+  -----+-----
+      111 | 222
+        11 |   22
+          1 |     2
+  (3 rows)
 
-	psql=# select * from b;
-	a1     | a2
-	----+----
-	    11 | 22
-	(1 row)
+  psql=# select * from b;
+  a1     | a2
+  ----+----
+      11 | 22
+  (1 row)
 
-	psql=# select * from c;
-	a1     | a2    |  c1  
-	----+----+-------
-	 1      |  2     | three
-	(1 row)
+  psql=# select * from c;
+  a1     | a2    |  c1  
+  ----+----+-------
+   1      |  2     | three
+  (1 row)
 
   does this make sense?
 me:  cool
@@ -73,19 +73,19 @@ Keith:
   all known employees for all known COMPANIES.
      create table companies
        (
-	   id                    serial not null primary key,
-	   created_at       timestamp not null default now(),
-	   updated_at      timestamp,
-	   name               text null
+     id                    serial not null primary key,
+     created_at       timestamp not null default now(),
+     updated_at      timestamp,
+     name               text null
        );
        create table employees
        (
-	   id                     serial not null primary key,
-	   created_at        timestamp not null default now(),
-	   updated_at       timestamp,
-	   name                text not null,
-	   salary               money not null,
-	   company_id      integer not null references companies
+     id                     serial not null primary key,
+     created_at        timestamp not null default now(),
+     updated_at       timestamp,
+     name                text not null,
+     salary               money not null,
+     company_id      integer not null references companies
        );
   does this make sense?
 me:  yes it does
@@ -117,7 +117,7 @@ Keith:
  Exactly.  Great. Now i'll add some data to the tables.
  notice this:
     psql=# \d employees
-					Table "public.employees"
+          Table "public.employees"
       Column           |            Type                                       |                       Modifiers                        
     ------------+-----------------------------+--------------------------------------------------------
     id                      | integer                                               | not null default nextval('employees_id_seq'::regclass)
@@ -148,34 +148,34 @@ Keith:
   'explain' shows you what the query planner is doing/would do.
   so… we'll use explain to figure out how partitioning helps us, try
     psql=# explain select * from employees where name = 'keith';
-				       QUERY PLAN                                    
+               QUERY PLAN                                    
     -----------------------------------------------------------------------------------
     Result  (cost=0.00..103.75 rows=20 width=64)
       ->  Append  (cost=0.00..103.75 rows=20 width=64)
-	    ->  Seq Scan on employees  (cost=0.00..20.75 rows=4 width=64)
-		  Filter: (name = 'keith'::text)
-	    ->  Seq Scan on employees_1 employees  (cost=0.00..20.75 rows=4 width=64)
-		  Filter: (name = 'keith'::text)
-	    ->  Seq Scan on employees_2 employees  (cost=0.00..20.75 rows=4 width=64)
-		  Filter: (name = 'keith'::text)
-	    ->  Seq Scan on employees_3 employees  (cost=0.00..20.75 rows=4 width=64)
-		  Filter: (name = 'keith'::text)
-	    ->  Seq Scan on employees_4 employees  (cost=0.00..20.75 rows=4 width=64)
-		  Filter: (name = 'keith'::text)
+      ->  Seq Scan on employees  (cost=0.00..20.75 rows=4 width=64)
+      Filter: (name = 'keith'::text)
+      ->  Seq Scan on employees_1 employees  (cost=0.00..20.75 rows=4 width=64)
+      Filter: (name = 'keith'::text)
+      ->  Seq Scan on employees_2 employees  (cost=0.00..20.75 rows=4 width=64)
+      Filter: (name = 'keith'::text)
+      ->  Seq Scan on employees_3 employees  (cost=0.00..20.75 rows=4 width=64)
+      Filter: (name = 'keith'::text)
+      ->  Seq Scan on employees_4 employees  (cost=0.00..20.75 rows=4 width=64)
+      Filter: (name = 'keith'::text)
     (12 rows)
   which is the worst of all possibilities. it checks every child table for name 'keith' then consolodates the information and returns the one row.
   but.. if we do this
     explain select * from employees where name = 'keith' and company_id = 1;
   we get
     psql=# explain select * from employees where name = 'keith' and company_id = 1;
-				       QUERY PLAN                                    
+               QUERY PLAN                                    
     -----------------------------------------------------------------------------------
     Result  (cost=0.00..45.80 rows=2 width=64)
       ->  Append  (cost=0.00..45.80 rows=2 width=64)
-	    ->  Seq Scan on employees  (cost=0.00..22.90 rows=1 width=64)
-		  Filter: ((name = 'keith'::text) AND (company_id = 1))
-	    ->  Seq Scan on employees_1 employees  (cost=0.00..22.90 rows=1 width=64)
-		  Filter: ((name = 'keith'::text) AND (company_id = 1))
+      ->  Seq Scan on employees  (cost=0.00..22.90 rows=1 width=64)
+      Filter: ((name = 'keith'::text) AND (company_id = 1))
+      ->  Seq Scan on employees_1 employees  (cost=0.00..22.90 rows=1 width=64)
+      Filter: ((name = 'keith'::text) AND (company_id = 1))
     (6 rows)
     so much win
 me:  cost is better, and plan too
@@ -184,7 +184,7 @@ Keith:
   equally as valid and even faster is:
     explain select * from employees_1 where name = 'keith';
     psql=# explain select * from employees_1 where name = 'keith';
-			     QUERY PLAN                          
+           QUERY PLAN                          
     -------------------------------------------------------------
     Seq Scan on employees_1  (cost=0.00..20.75 rows=4 width=64)
       Filter: (name = 'keith'::text)

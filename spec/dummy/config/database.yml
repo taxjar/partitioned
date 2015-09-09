@@ -1,8 +1,7 @@
 common: &common
   adapter: postgresql
-  username: postgres
-  password: postgres
-  encoding: SQL_ASCII
+  username: taxjar
+  encoding: UTF8
   template: template0
   pool: 5
   timeout: 5000

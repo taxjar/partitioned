@@ -10,8 +10,9 @@ module Partitioned
 
     module TimeField
       class Employee < Partitioned::ByTimeField
+        include BulkDataMethods::Mixin
+        
         belongs_to :company, :class_name => 'Company'
-        attr_accessible :created_at, :name, :company_id
 
         def self.partition_time_field
           return :created_at
@@ -46,7 +47,7 @@ module Partitioned
     describe "model is abstract class" do
 
       it "returns true" do
-        class_by_time_field.abstract_class.should be_true
+        expect(class_by_time_field.abstract_class).to be_truthy
       end
 
     end # model is abstract class
@@ -54,9 +55,9 @@ module Partitioned
     describe "#partition_generate_range" do
 
       it "returns dates array" do
-        class_by_time_field.
-            partition_generate_range(Date.parse('2011-01-05'), Date.parse('2011-01-07')).
-            should == [Date.parse('2011-01-05'), Date.parse('2011-01-06'), Date.parse('2011-01-07')]
+        expect(class_by_time_field.
+            partition_generate_range(Date.parse('2011-01-05'), Date.parse('2011-01-07'))).
+            to eq([Date.parse('2011-01-05'), Date.parse('2011-01-06'), Date.parse('2011-01-07')])
       end
 
     end # #partition_generate_range
@@ -64,9 +65,9 @@ module Partitioned
     describe "#partition_normalize_key_value" do
 
       it "returns date" do
-        class_by_time_field.
-            partition_normalize_key_value(Date.parse('2011-01-05')).
-            should == Date.parse('2011-01-05')
+        expect(class_by_time_field.
+            partition_normalize_key_value(Date.parse('2011-01-05'))).
+            to eq(Date.parse('2011-01-05'))
       end
 
     end # #partition_normalize_key_value
@@ -74,7 +75,7 @@ module Partitioned
     describe "#partition_table_size" do
 
       it "returns 1.day" do
-        class_by_time_field.partition_table_size.should == 1.day
+        expect(class_by_time_field.partition_table_size).to eq(1.day)
       end
 
     end # #partition_table_size
@@ -82,9 +83,9 @@ module Partitioned
     describe "#partition_time_field" do
 
       it "raises MethodNotImplemented" do
-        lambda {
+        expect {
           class_by_time_field.partition_time_field
-        }.should raise_error(MethodNotImplemented)
+        }.to raise_error(MethodNotImplemented)
       end
 
     end # #partition_time_field
@@ -98,7 +99,7 @@ module Partitioned
       context "checks data in the on_field is Proc" do
 
         it "returns Proc" do
-          data.on_field.should be_is_a Proc
+          expect(data.on_field).to be_is_a Proc
         end
 
       end # checks data in the on_field is Proc
@@ -106,7 +107,7 @@ module Partitioned
       context "checks data in the indexes is Proc" do
 
         it "returns Proc" do
-          data.indexes.first.should be_is_a Proc
+          expect(data.indexes.first).to be_is_a Proc
         end
 
       end # checks data in the indexes is Proc
@@ -114,7 +115,7 @@ module Partitioned
       context "checks data in the base_name is Proc" do
 
         it "returns Proc" do
-          data.base_name.should be_is_a Proc
+          expect(data.base_name).to be_is_a Proc
         end
 
       end # checks data in the base_name is Proc
@@ -122,7 +123,7 @@ module Partitioned
       context "checks data in the check_constraint is Proc" do
 
         it "returns Proc" do
-          data.check_constraint.should be_is_a Proc
+          expect(data.check_constraint).to be_is_a Proc
         end
 
       end # checks data in the check_constraint is Proc
@@ -130,7 +131,7 @@ module Partitioned
       context "checks data in the on_field" do
 
         it "returns on_field" do
-          data.on_field.call(@employee).should == :created_at
+          expect(data.on_field.call(@employee)).to eq(:created_at)
         end
 
       end # checks data in the on_field
@@ -138,11 +139,11 @@ module Partitioned
       context "checks data in the indexes" do
 
         it "returns :created_at" do
-          data.indexes.first.call(@employee, nil).field.should == :created_at
+          expect(data.indexes.first.call(@employee, nil).field).to eq(:created_at)
         end
 
         it "returns empty options hash" do
-          data.indexes.first.call(@employee, nil).options.should == {}
+          expect(data.indexes.first.call(@employee, nil).options).to eq({})
         end
 
       end # checks data in the indexes
@@ -150,7 +151,7 @@ module Partitioned
       context "checks data in the last_partitions_order_by_clause" do
 
         it "returns last_partitions_order_by_clause" do
-          data.last_partitions_order_by_clause.should == "tablename desc"
+          expect(data.last_partitions_order_by_clause).to eq("tablename desc")
         end
 
       end # checks data in the last_partitions_order_by_clause
@@ -158,7 +159,7 @@ module Partitioned
       context "checks data in the base_name" do
 
         it "returns base_name" do
-          data.base_name.call(@employee, Date.parse('2011-01-05')).should == "20110105"
+          expect(data.base_name.call(@employee, Date.parse('2011-01-05'))).to eq("20110105")
         end
 
       end # checks data in the base_name
@@ -166,9 +167,9 @@ module Partitioned
       context "checks data in the check_constraint" do
 
         it "returns check_constraint" do
-          data.check_constraint.
-              call(@employee, Date.parse('2011-01-05')).
-              should == "created_at >= '2011-01-05' AND created_at < '2011-01-06'"
+          expect(data.check_constraint.
+              call(@employee, Date.parse('2011-01-05'))).
+              to eq("created_at >= '2011-01-05' AND created_at < '2011-01-06'")
         end
 
       end # checks data in the check_constraint

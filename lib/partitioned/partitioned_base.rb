@@ -1,7 +1,3 @@
-#
-# :include: ../../README
-#
-require "bulk_data_methods"
 
 module Partitioned
   #
@@ -20,8 +16,6 @@ module Partitioned
   # Uses a domain specific language to configure, see Partitioned::PartitionedBase::Configurator
   # for more information.
   #
-  # Extends BulkMethodsMixin to provide create_many and update_many.
-  #
   # Uses PartitionManager to manage creation of child tables.
   #
   # Monkey patches some ActiveRecord routines to call back to this class when INSERT and UPDATE
@@ -29,7 +23,6 @@ module Partitioned
   #
   class PartitionedBase < ActiveRecord::Base
     include ActiveRecordOverrides
-    extend ::BulkMethodsMixin
 
     self.abstract_class = true
 
@@ -150,7 +143,7 @@ module Partitioned
     #
     # Use as:
     #
-    #   Foo.from_partition(KEY).find(:first)
+    #   Foo.from_partition(KEY).first
     #
     # where KEY is the key value(s) used as the check constraint on Foo's table.
     #
@@ -168,7 +161,7 @@ module Partitioned
     #
     # Use as:
     #
-    #   Foo.from_partition_without_alias(KEY).find(:all, :select => "*")
+    #   Foo.from_partition_without_alias(KEY).all
     #
     # where KEY is the key value(s) used as the check constraint on Foo's table.
     #

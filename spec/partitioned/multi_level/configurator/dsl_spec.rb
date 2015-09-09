@@ -35,7 +35,9 @@ describe Partitioned::MultiLevel::Configurator::Dsl do
         "parent_table_name" => nil,
         "check_constraint" => nil,
         "encoded_name" => nil,
-        "using_classes" => []
+        "using_classes" => [],
+        "after_partition_table_create_hooks" => [],
+
       }
     end
 
@@ -44,7 +46,7 @@ describe Partitioned::MultiLevel::Configurator::Dsl do
       context "check the model name" do
 
         it "returns Employer" do
-          dsl.model.should == Employee
+          expect(dsl.model).to eq(Employee)
         end
 
       end # check the model name
@@ -52,7 +54,7 @@ describe Partitioned::MultiLevel::Configurator::Dsl do
       context "check the object data" do
 
         it "returns data" do
-          dsl.data.instance_values.should == data_stubs
+          expect(dsl.data.instance_values).to eq(data_stubs)
         end
 
       end # check the object data
@@ -66,9 +68,9 @@ describe Partitioned::MultiLevel::Configurator::Dsl do
     context "when try to set the field which used to partition child tables" do
 
       it "raises InvalidForMultiLevelPartitioning" do
-        lambda {
+        expect {
           dsl.on
-        }.should raise_error(Partitioned::MultiLevel::Configurator::Dsl::InvalidForMultiLevelPartitioning)
+        }.to raise_error(Partitioned::MultiLevel::Configurator::Dsl::InvalidForMultiLevelPartitioning)
       end
 
     end # when try to set the field which used to partition child tables
@@ -81,8 +83,8 @@ describe Partitioned::MultiLevel::Configurator::Dsl do
 
       it "returns using_classes" do
         dsl.using_classes("ByCompanyId", "ByCreatedAt")
-        dsl.data.using_classes.first.should == "ByCompanyId"
-        dsl.data.using_classes.last.should == "ByCreatedAt"
+        expect(dsl.data.using_classes.first).to eq("ByCompanyId")
+        expect(dsl.data.using_classes.last).to eq("ByCreatedAt")
       end
 
     end # when try to set the using_classes field

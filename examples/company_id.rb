@@ -308,6 +308,8 @@ require File.expand_path(File.dirname(__FILE__) + "/lib/company")
 require File.expand_path(File.dirname(__FILE__) + "/lib/by_company_id")
 
 class Employee < ByCompanyId
+  include BulkDataMethods::Mixin
+        
   belongs_to :company, :class_name => 'Company'
   attr_accessible :salary, :company_id, :name
 

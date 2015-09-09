@@ -8,8 +8,8 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create one record" do
 
     it "record created" do
-      lambda { subject.create(:name => 'Phil', :company_id => 3, :integer_field => 2)
-      }.should_not raise_error
+      expect { subject.create(:name => 'Phil', :company_id => 3, :integer_field => 2)
+      }.not_to raise_error
     end
 
   end # when try to create one record
@@ -17,10 +17,10 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create one record using new/save" do
 
     it "record created" do
-      lambda {
+      expect {
         instance = subject.new(:name => 'Mike', :company_id => 1, :integer_field => 1)
         instance.save!
-      }.should_not raise_error
+      }.not_to raise_error
     end
 
   end # when try to create one record using new/save
@@ -28,10 +28,10 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create many records" do
 
     it "records created" do
-      lambda { subject.create_many([
+      expect { subject.create_many([
                                      { :name => 'Alex', :company_id => 2, :integer_field => 4 },
                                      { :name => 'Aaron', :company_id => 3, :integer_field => 2 }])
-      }.should_not raise_error
+      }.not_to raise_error
     end
 
   end # when try to create many records
@@ -39,7 +39,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to find a record with the search term is id" do
 
     it "returns employee name" do
-      subject.find(1).name.should == "Keith"
+      expect(subject.find(1).name).to eq("Keith")
     end
 
   end # when try to find a record with the search term is id
@@ -47,7 +47,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to find a record with the search term is name" do
 
     it "returns employee name" do
-      subject.where(:name => 'Keith').first.name.should == "Keith"
+      expect(subject.where(:name => 'Keith').first.name).to eq("Keith")
     end
 
   end # when try to find a record with the search term is name
@@ -55,7 +55,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to find a record which is showing partition table" do
 
     it "returns employee name" do
-      subject.from_partition(1).find(1).name.should == "Keith"
+      expect(subject.from_partition(1).find(1).name).to eq("Keith")
     end
 
   end # when try to find a record which is showing partition table
@@ -64,7 +64,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "returns updated employee name" do
       subject.update(1, :name => 'Kevin')
-      subject.find(1).name.should == "Kevin"
+      expect(subject.find(1).name).to eq("Kevin")
     end
 
   end # when try to update a record with id = 1
@@ -77,7 +77,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
             :name => 'Alex'
           }
       } )
-      subject.find(1).name.should == "Alex"
+      expect(subject.find(1).name).to eq("Alex")
     end
 
     it "returns updated employee name" do
@@ -93,7 +93,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
         :where => '"#{table_name}.id = datatable.id"'
       }
       subject.update_many(rows, options)
-      subject.find(1).name.should == "Pit"
+      expect(subject.find(1).name).to eq("Pit")
     end
 
   end # when try to update a record with update_many functions
@@ -102,7 +102,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "returns empty array" do
       subject.delete(1)
-      subject.find(:all).should == []
+      expect(subject.all).to eq([])
     end
 
   end # when try to delete a record with id = 1
@@ -110,8 +110,8 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create new record outside the range of partitions" do
 
     it "raises ActiveRecord::StatementInvalid" do
-      lambda { subject.create_many([{ :name => 'Mark', :company_id => 13, :integer_field => 5 } ])
-      }.should raise_error(ActiveRecord::StatementInvalid)
+      expect { subject.create_many([{ :name => 'Mark', :company_id => 13, :integer_field => 5 } ])
+      }.to raise_error(ActiveRecord::StatementInvalid)
     end
 
   end # when try to create new record outside the range of partitions
@@ -119,8 +119,8 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to update a record outside the range of partitions" do
 
     it "raises ActiveRecord::RecordNotFound" do
-      lambda { subject.update(100500, :name => 'Kevin')
-      }.should raise_error(ActiveRecord::RecordNotFound)
+      expect { subject.update(100500, :name => 'Kevin')
+      }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
   end # when try to update a record outside the range of partitions
@@ -128,8 +128,8 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to find a record outside the range of partitions" do
 
     it "raises ActiveRecord::StatementInvalid" do
-      lambda { subject.from_partition(8).find(1)
-      }.should raise_error(ActiveRecord::StatementInvalid)
+      expect { subject.from_partition(8).find(1)
+      }.to raise_error(ActiveRecord::StatementInvalid)
     end
 
   end # when try to find a record outside the range of partitions
