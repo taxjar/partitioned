@@ -10,7 +10,7 @@ module Partitioned
     # @return [Integer] how partions to partion into
     #
     def self.partition_modulus
-      return 128
+      return 96
     end
 
     # the name of the partition key field
@@ -24,7 +24,7 @@ module Partitioned
     # @return [Integer] the normalized value
     #
     def self.partition_normalize_key_value(modulo_field_value)
-      return modulo_field_value % partition_modulus
+      return modulo_field_value % self.partition_modulus
     end
 
     # Range generation provided for methods like created_infrastructure that need a set of partition key values

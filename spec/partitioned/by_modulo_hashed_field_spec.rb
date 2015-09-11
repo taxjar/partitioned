@@ -4,12 +4,12 @@ require "#{File.dirname(__FILE__)}/../support/shared_example_spec_helper_for_mod
 
 module Partitioned
 
-  describe ByModuloField do
+  describe ByModuloHashedField do
 
     include TablesSpecHelper
 
-    module ModuloField
-      class Employee < ByModuloField
+    module ModuloHashedField
+      class Employee < ByModuloHashedField
         include BulkDataMethods::Mixin
         
         belongs_to :company, :class_name => 'Company'
@@ -26,10 +26,10 @@ module Partitioned
           partition.index :integer_field
         end
       end # Employee
-    end # ModuloField
+    end # ModuloHashedField
 
     before(:all) do
-      @employee = ModuloField::Employee
+      @employee = ModuloHashedField::Employee
       create_tables
       @employee.create_new_partition_tables(Range.new(0, 1))
       ActiveRecord::Base.connection.execute <<-SQL
@@ -41,7 +41,7 @@ module Partitioned
       drop_tables
     end
 
-    let(:class_by_id) { ::Partitioned::ByModuloField }
+    let(:class_by_id) { ::Partitioned::ByModuloHashedField }
 
     describe "model is abstract class" do
 
@@ -51,7 +51,7 @@ module Partitioned
 
     end # model is abstract class
 
-    describe "#partition_modulo_field" do
+    describe "#partition_modulo_hashed_field" do
 
       it "returns :id" do
         expect {
@@ -59,7 +59,7 @@ module Partitioned
         }.to raise_error(MethodNotImplemented)
       end
 
-    end # #partition_modulo_field
+    end # #partition_modulo_hashed_field
 
     describe "partitioned block" do
 
@@ -77,7 +77,7 @@ module Partitioned
 
     end # partitioned block
 
-    it_should_behave_like "check that basic operations with postgres works correctly for modulo key", ModuloField::Employee
+    it_should_behave_like "check that basic operations with postgres works correctly for modulo key", ModuloHashedField::Employee
 
   end # ByModuloField
 
