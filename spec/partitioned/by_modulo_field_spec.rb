@@ -8,7 +8,7 @@ module Partitioned
 
     include TablesSpecHelper
 
-    module Modulo
+    module ModuloField
       class Employee < ByModuloField
         include BulkDataMethods::Mixin
         
@@ -26,10 +26,10 @@ module Partitioned
           partition.index :integer_field
         end
       end # Employee
-    end # Modulo
+    end # ModuloField
 
     before(:all) do
-      @employee = Modulo::Employee
+      @employee = ModuloField::Employee
       create_tables
       @employee.create_new_partition_tables(Range.new(0, 1))
       ActiveRecord::Base.connection.execute <<-SQL
@@ -77,7 +77,7 @@ module Partitioned
 
     end # partitioned block
 
-    it_should_behave_like "check that basic operations with postgres works correctly for modulo key", Modulo::Employee
+    it_should_behave_like "check that basic operations with postgres works correctly for modulo key", ModuloField::Employee
 
   end # ByModuloField
 
