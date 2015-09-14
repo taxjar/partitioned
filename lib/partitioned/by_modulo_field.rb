@@ -24,7 +24,7 @@ module Partitioned
     # @return [Integer] the normalized value
     #
     def self.partition_normalize_key_value(modulo_field_value)
-      return modulo_field_value % self.partition_modulus
+      return modulo_field_value.to_i % self.partition_modulus
     end
 
     # Range generation provided for methods like created_infrastructure that need a set of partition key values
@@ -50,7 +50,7 @@ module Partitioned
 
       partition.check_constraint lambda { |model, id|
         value = model.partition_normalize_key_value(id)
-        return "(#{model.partition_modulo_field} % #{model.partition_modulus}) = #{value}"
+        return "(#{model.partition_modulo_field}::integer % #{model.partition_modulus}) = #{value}::integer"
       }
 
     end
