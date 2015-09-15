@@ -56,7 +56,7 @@ module Partitioned
       it "returns the beginning of the day" do
         class_by_daily_time_field.
             partition_normalize_key_value(Date.parse('2011-01-05')).
-            should == Date.parse('2011-01-03')
+            should == Date.parse('2011-01-05')
       end
 
     end # #partition_normalize_key_value
@@ -86,7 +86,7 @@ module Partitioned
       context "checks data in the base_name" do
 
         it "returns base_name" do
-          data.base_name.call(@employee, Date.parse('2011-01-05')).should == "20110103"
+          data.base_name.call(@employee, Date.parse('2011-01-05')).should == "20110105"
         end
 
       end # checks data in the base_name
