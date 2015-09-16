@@ -344,7 +344,7 @@ module Partitioned
 
             it "returns employees_partitions.p42" do
               dsl.table_name("employees_partitions.p42")
-              reader.table_name.should == "employees_partitions.p42"
+              reader.table_name(57).should == "employees_partitions.p42"
             end
 
           end # when table_name value is set by value
