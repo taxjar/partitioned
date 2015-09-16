@@ -46,7 +46,7 @@ module Partitioned
     describe "model is abstract class" do
 
       it "returns true" do
-        class_by_daily_time_field.abstract_class.should be_true
+        expect(class_by_daily_time_field.abstract_class).to be_truthy
       end
 
     end # model is abstract class
@@ -54,9 +54,9 @@ module Partitioned
     describe "#partition_normalize_key_value" do
 
       it "returns the beginning of the day" do
-        class_by_daily_time_field.
-            partition_normalize_key_value(Date.parse('2011-01-05')).
-            should == Date.parse('2011-01-05')
+        expect(class_by_daily_time_field.
+            partition_normalize_key_value(Date.parse('2011-01-05'))).
+            to eq(Date.parse('2011-01-05'))
       end
 
     end # #partition_normalize_key_value
@@ -64,7 +64,7 @@ module Partitioned
     describe "#partition_table_size" do
 
       it "returns 1.day" do
-        class_by_daily_time_field.partition_table_size.should == 1.day
+        expect(class_by_daily_time_field.partition_table_size).to eq(1.day)
       end
 
     end # #partition_table_size
@@ -78,7 +78,7 @@ module Partitioned
       context "checks data in the base_name is Proc" do
 
         it "returns Proc" do
-          data.base_name.should be_is_a Proc
+          expect(data.base_name).to be_is_a Proc
         end
 
       end # checks data in the base_name is Proc
@@ -86,7 +86,7 @@ module Partitioned
       context "checks data in the base_name" do
 
         it "returns base_name" do
-          data.base_name.call(@employee, Date.parse('2011-01-05')).should == "20110105"
+          expect(data.base_name.call(@employee, Date.parse('2011-01-05'))).to eq("20110105")
         end
 
       end # checks data in the base_name

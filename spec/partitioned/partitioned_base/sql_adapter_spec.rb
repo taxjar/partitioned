@@ -90,14 +90,14 @@ module Partitioned
             WHERE specific_schema NOT IN ('pg_catalog', 'information_schema')
             AND type_udt_name != 'trigger';
           SQL
-          result.values.first.should == ["always_fail_on_insert"]
+          expect(result.values.first).to eq ["always_fail_on_insert"]
         end
       end # ensure_always_fail_on_insert_exists
 
       describe "create_partition_schema" do
         it "created schema" do
           sql_adapter.create_partition_schema
-          check_existence_schema.values.should_not be_blank
+          expect(check_existence_schema.values).not_to be_blank
         end
       end # create_partition_schema
 
@@ -105,7 +105,7 @@ module Partitioned
 
         context "when partition table don't exist" do
           it "returns false" do
-            sql_adapter.partition_exists?(1).should be_false
+            expect(sql_adapter.partition_exists?(1)).to be false
           end
         end # when partition table don't exist
 
@@ -113,7 +113,7 @@ module Partitioned
           it "returns true" do
             create_new_schema
             create_new_partition_table
-            sql_adapter.partition_exists?(1).should be_true
+            expect(sql_adapter.partition_exists?(1)).to be true
           end
         end # when partition table exist
       end # partition_exists?
@@ -122,7 +122,7 @@ module Partitioned
 
         context "when partition table don't exist" do
           it "returns empty array" do
-            sql_adapter.last_n_partition_names.should == []
+            expect(sql_adapter.last_n_partition_names).to be_empty
           end
         end # when partition table don't exist
 
@@ -130,7 +130,7 @@ module Partitioned
           it "returns partition table name" do
             create_new_schema
             create_new_partition_table
-            sql_adapter.last_n_partition_names.should == ["p1"]
+            expect(sql_adapter.last_n_partition_names).to eq ["p1"]
           end
         end # when partition table exist
       end
@@ -139,10 +139,10 @@ module Partitioned
         context "when try to insert row into table with rules" do
           it "raises ActiveRecord::StatementInvalid" do
             sql_adapter.add_parent_table_rules
-            lambda { ActiveRecord::Base.connection.execute <<-SQL
+            expect(lambda { ActiveRecord::Base.connection.execute <<-SQL
                 insert into employee (name) values ('name');
               SQL
-            }.should raise_error(ActiveRecord::StatementInvalid)
+            }).to raise_error(ActiveRecord::StatementInvalid)
           end
         end # when try to insert row into table with rules
       end # add_parent_table_rules
@@ -150,10 +150,10 @@ module Partitioned
       describe "create_partition_table" do
         it "created partition table" do
           create_new_schema
-          lambda {
+          expect(lambda {
             sql_adapter.create_partition_table(1)
-          }.should_not raise_error
-          check_existence_table.values.sort.should == [["employees"], ["p1"]].sort
+          }).not_to raise_error
+          expect(check_existence_table.values.sort).to eq [["employees"], ["p1"]].sort
         end
       end # create_partition_table
 
@@ -162,7 +162,7 @@ module Partitioned
           create_new_schema
           sql_adapter.create_partition_table(1)
           sql_adapter.drop_partition_table(1)
-          check_existence_table.values.should == [["employees"]]
+          expect(check_existence_table.values).to eq [["employees"]]
         end
       end # drop_partition_table
 
@@ -175,7 +175,7 @@ module Partitioned
             SELECT count(*) FROM pg_class
             where relname = 'p1_id_udx'
           SQL
-          result.values.should == [["1"]]
+          expect(result.values).to eq [["1"]]
         end
       end # add_partition_table_index
 
@@ -195,7 +195,7 @@ module Partitioned
             SELECT constraint_type FROM information_schema.table_constraints
             WHERE table_name = 'p1' AND constraint_name = 'p1_company_id_fkey';
           SQL
-          result.values.first.should == ["FOREIGN KEY"]
+          expect(result.values.first).to eq ["FOREIGN KEY"]
         end
       end # add_references_to_partition_table
 

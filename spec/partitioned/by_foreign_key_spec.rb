@@ -41,7 +41,7 @@ module Partitioned
     describe "model is abstract class" do
 
       it "returns true" do
-        class_by_foreign_key.abstract_class.should be_true
+        expect(class_by_foreign_key.abstract_class).to be_truthy
       end
 
     end # model is abstract class
@@ -49,9 +49,9 @@ module Partitioned
     describe "#partition_foreign_key" do
 
       it "raises MethodNotImplemented" do
-        lambda {
+        expect {
           class_by_foreign_key.partition_foreign_key
-        }.should raise_error(MethodNotImplemented)
+        }.to raise_error(MethodNotImplemented)
       end
 
     end # #partition_foreign_key
@@ -61,7 +61,7 @@ module Partitioned
       context "checks data in the foreign_keys is Proc" do
 
         it "returns Proc" do
-          class_by_foreign_key.configurator_dsl.data.foreign_keys.first.should be_is_a Proc
+          expect(class_by_foreign_key.configurator_dsl.data.foreign_keys.first).to be_is_a Proc
         end
 
       end # checks data in the foreign_keys is Proc
@@ -73,15 +73,15 @@ module Partitioned
         end
 
         it "returns referencing_field" do
-          proc.referencing_field.should == :company_id
+          expect(proc.referencing_field).to eq(:company_id)
         end
 
         it "returns referenced_field" do
-          proc.referenced_field.should == :id
+          expect(proc.referenced_field).to eq(:id)
         end
 
         it "returns referencing_field" do
-          proc.referenced_table.should == "companies"
+          expect(proc.referenced_table).to eq("companies")
         end
 
       end # checks if there is data in the foreign_keys
