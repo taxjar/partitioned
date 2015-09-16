@@ -41,7 +41,7 @@ module Partitioned
     describe "model is abstract class" do
 
       it "returns true" do
-        class_by_id.abstract_class.should be_true
+        expect(class_by_id.abstract_class).to be_truthy
       end
 
     end # model is abstract class
@@ -51,7 +51,7 @@ module Partitioned
       context "is :id set as a primary_key" do
 
         it "returns true" do
-          class_by_id.prefetch_primary_key?.should be_true
+          expect(class_by_id.prefetch_primary_key?).to be_truthy
         end
 
       end # is :id set as a primary_key
@@ -61,7 +61,7 @@ module Partitioned
     describe "#partition_table_size" do
 
       it "returns 10000000" do
-        class_by_id.partition_table_size.should == 10000000
+        expect(class_by_id.partition_table_size).to eq(10000000)
       end
 
     end # #partition_table_size
@@ -69,7 +69,7 @@ module Partitioned
     describe "#partition_integer_field" do
 
       it "returns :id" do
-        class_by_id.partition_integer_field.should == :id
+        expect(class_by_id.partition_integer_field).to eq(:id)
       end
 
     end # #partition_integer_field
@@ -79,11 +79,11 @@ module Partitioned
       context "checks if there is data in the indexes field" do
 
         it "returns :id" do
-          class_by_id.configurator_dsl.data.indexes.first.field.should == :id
+          expect(class_by_id.configurator_dsl.data.indexes.first.field).to eq(:id)
         end
 
         it "returns { :unique => true }" do
-          class_by_id.configurator_dsl.data.indexes.first.options.should == { :unique => true }
+          expect(class_by_id.configurator_dsl.data.indexes.first.options).to eq({ :unique => true })
         end
 
       end # checks if there is data in the indexes field

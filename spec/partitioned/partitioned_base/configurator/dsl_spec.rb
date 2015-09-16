@@ -47,7 +47,7 @@ module Partitioned
             context "check the model name" do
 
               it "returns Employer" do
-                dsl.model.should == Employee
+                expect(dsl.model).to eq(Employee)
               end
 
             end # check the model name
@@ -55,7 +55,7 @@ module Partitioned
             context "check the object data" do
 
               it "returns data" do
-                dsl.data.instance_values.should == data_stubs
+                expect(dsl.data.instance_values).to eq(data_stubs)
               end
 
             end # check the object data
@@ -70,7 +70,7 @@ module Partitioned
 
             it "returns data.on value" do
               dsl.on(:company_id)
-              dsl.data.on_field.should == :company_id
+              expect(dsl.data.on_field).to eq(:company_id)
             end
 
           end # when try to set the field which used to partition child tables
@@ -79,7 +79,7 @@ module Partitioned
 
             it "returns data.on value" do
               dsl.on('#{model.partition_field}')
-              dsl.data.on_field.should == '#{model.partition_field}'
+              expect(dsl.data.on_field).to eq('#{model.partition_field}')
             end
 
           end # when try to set the field represented as a string to be interpolated naming the field to partition child tables
@@ -92,7 +92,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.on lmd
-              dsl.data.on_field.should == lmd
+              expect(dsl.data.on_field).to eq(lmd)
             end
 
           end # when try to set the field which(with proc) used to partition child tables
@@ -105,8 +105,8 @@ module Partitioned
 
             it "returns index" do
               dsl.index(:id, { :unique => true })
-              dsl.data.indexes.first.field.should == :id
-              dsl.data.indexes.first.options.should == { :unique => true }
+              expect(dsl.data.indexes.first.field).to eq(:id)
+              expect(dsl.data.indexes.first.options).to eq({ :unique => true })
             end
 
           end # when try to set the index  to be created on all child tables
@@ -121,7 +121,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.index lmd
-              dsl.data.indexes.first.should == lmd
+              expect(dsl.data.indexes.first).to eq(lmd)
             end
 
           end # when try to set the index(with proc) to be created on all child tables
@@ -134,9 +134,9 @@ module Partitioned
 
             it "returns foreign_keys" do
               dsl.foreign_key(:company_id)
-              dsl.data.foreign_keys.first.referencing_field.should == :company_id
-              dsl.data.foreign_keys.first.referenced_table.should == "companies"
-              dsl.data.foreign_keys.first.referenced_field.should == :id
+              expect(dsl.data.foreign_keys.first.referencing_field).to eq(:company_id)
+              expect(dsl.data.foreign_keys.first.referenced_table).to eq("companies")
+              expect(dsl.data.foreign_keys.first.referenced_field).to eq(:id)
             end
 
           end # when try to set the foreign key on a child table
@@ -151,7 +151,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.index lmd
-              dsl.data.indexes.first.should == lmd
+              expect(dsl.data.indexes.first).to eq(lmd)
             end
 
           end # when try to set the foreign key(with proc) on a child table
@@ -164,7 +164,7 @@ module Partitioned
 
             it "returns check_constraint" do
               dsl.check_constraint('company_id = #{field_value}')
-              dsl.data.check_constraint.should == 'company_id = #{field_value}'
+              expect(dsl.data.check_constraint).to eq('company_id = #{field_value}')
             end
 
           end # when try to set the check constraint for a given child table
@@ -179,7 +179,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.check_constraint lmd
-              dsl.data.check_constraint.should == lmd
+              expect(dsl.data.check_constraint).to eq(lmd)
             end
 
           end # when try to set the check constraint(with proc) for a given child table
@@ -192,7 +192,7 @@ module Partitioned
 
             it "returns check_constraint" do
               dsl.order('tablename desc')
-              dsl.data.last_partitions_order_by_clause.should == 'tablename desc'
+              expect(dsl.data.last_partitions_order_by_clause).to eq('tablename desc')
             end
 
           end # when try to set the check constraint for a given child table
@@ -205,7 +205,7 @@ module Partitioned
 
             it "returns schema_name" do
               dsl.schema_name("employees_partitions")
-              dsl.data.schema_name.should == "employees_partitions"
+              expect(dsl.data.schema_name).to eq("employees_partitions")
             end
 
           end # when try to set the name of the schema that will contain all child tables
@@ -214,7 +214,7 @@ module Partitioned
 
             it "returns schema_name" do
               dsl.schema_name('#{model.table_name}_partitions')
-              dsl.data.schema_name.should == '#{model.table_name}_partitions'
+              expect(dsl.data.schema_name).to eq('#{model.table_name}_partitions')
             end
 
           end # when try to set the schema name represented as a string to be interpolated at run time
@@ -229,7 +229,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.schema_name lmd
-              dsl.data.schema_name.should == lmd
+              expect(dsl.data.schema_name).to eq(lmd)
             end
 
           end # when try to set the name of the schema(with proc) that will contain all child tables
@@ -242,7 +242,7 @@ module Partitioned
 
             it "returns name_prefix" do
               dsl.name_prefix("p")
-              dsl.data.name_prefix.should == "p"
+              expect(dsl.data.name_prefix).to eq("p")
             end
 
           end # when try to set the name prefix for the child table's name
@@ -251,7 +251,7 @@ module Partitioned
 
             it "returns name_prefix" do
               dsl.name_prefix('#{model.table_name}_child_')
-              dsl.data.name_prefix.should == '#{model.table_name}_child_'
+              expect(dsl.data.name_prefix).to eq('#{model.table_name}_child_')
             end
 
           end # when try to set the name prefix represented as a string to be interpolated at run time
@@ -266,7 +266,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.name_prefix lmd
-              dsl.data.name_prefix.should == lmd
+              expect(dsl.data.name_prefix).to eq(lmd)
             end
 
           end # when try to set the name prefix(with proc) for the child table's name
@@ -279,7 +279,7 @@ module Partitioned
 
             it "returns base_name" do
               dsl.base_name("25")
-              dsl.data.base_name.should == "25"
+              expect(dsl.data.base_name).to eq("25")
             end
 
           end # when try to set the name of the child table without the schema name or name prefix
@@ -288,7 +288,7 @@ module Partitioned
 
             it "returns base_name" do
               dsl.base_name('#{model.partition_normalize_key_value(field_value)}')
-              dsl.data.base_name.should == '#{model.partition_normalize_key_value(field_value)}'
+              expect(dsl.data.base_name).to eq('#{model.partition_normalize_key_value(field_value)}')
             end
 
           end # when try to set the name of the child table represented as a string to be interpolated at run time
@@ -303,7 +303,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.base_name lmd
-              dsl.data.base_name.should == lmd
+              expect(dsl.data.base_name).to eq(lmd)
             end
 
           end # when try to set the name of the child table(with proc) without the schema name or name prefix
@@ -316,7 +316,7 @@ module Partitioned
 
             it "returns part_name" do
               dsl.part_name("p42")
-              dsl.data.part_name.should == "p42"
+              expect(dsl.data.part_name).to eq("p42")
             end
 
           end # when try to set the part name of the child table without the schema name
@@ -325,7 +325,7 @@ module Partitioned
 
             it "returns part_name" do
               dsl.part_name('#{model.table_name}_child_#{model.partition_normalize_key_value(field_value)}')
-              dsl.data.part_name.should == '#{model.table_name}_child_#{model.partition_normalize_key_value(field_value)}'
+              expect(dsl.data.part_name).to eq('#{model.table_name}_child_#{model.partition_normalize_key_value(field_value)}')
             end
 
           end # when try to set the part name of the child table represented as a string to be interpolated at run time
@@ -340,7 +340,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.part_name lmd
-              dsl.data.part_name.should == lmd
+              expect(dsl.data.part_name).to eq(lmd)
             end
 
           end # when try to set the part name(with proc) of the child table without the schema name
@@ -353,7 +353,7 @@ module Partitioned
 
             it "returns table_name" do
               dsl.table_name("foos_partitions.p42")
-              dsl.data.table_name.should == "foos_partitions.p42"
+              expect(dsl.data.table_name).to eq("foos_partitions.p42")
             end
 
           end # when try to set the full name of a child table
@@ -362,7 +362,7 @@ module Partitioned
 
             it "returns table_name" do
               dsl.table_name('#{model.table_name}_partitions.#{model.table_name}_child_#{model.partition_normalize_key_value(field_value)}')
-              dsl.data.table_name.should == '#{model.table_name}_partitions.#{model.table_name}_child_#{model.partition_normalize_key_value(field_value)}'
+              expect(dsl.data.table_name).to eq('#{model.table_name}_partitions.#{model.table_name}_child_#{model.partition_normalize_key_value(field_value)}')
             end
 
           end # when try to set the table name of the child table represented as a string to be interpolated at run time
@@ -377,7 +377,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.table_name lmd
-              dsl.data.table_name.should == lmd
+              expect(dsl.data.table_name).to eq(lmd)
             end
 
           end # when try to set the full name(with proc) of a child table
@@ -390,7 +390,7 @@ module Partitioned
 
             it "returns parent_table_name" do
               dsl.parent_table_name("employees")
-              dsl.data.parent_table_name.should == "employees"
+              expect(dsl.data.parent_table_name).to eq("employees")
             end
 
           end # when try to set the table name who is the direct ancestor of a child table
@@ -399,7 +399,7 @@ module Partitioned
 
             it "returns parent_table_name" do
               dsl.parent_table_name('#{model.table_name}')
-              dsl.data.parent_table_name.should == '#{model.table_name}'
+              expect(dsl.data.parent_table_name).to eq('#{model.table_name}')
             end
 
           end # when try to set the parent table name represented as a string to be interpolated at run time
@@ -414,7 +414,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.parent_table_name lmd
-              dsl.data.parent_table_name.should == lmd
+              expect(dsl.data.parent_table_name).to eq(lmd)
             end
 
           end # when try to set the table name(with proc) who is the direct ancestor of a child table
@@ -427,7 +427,7 @@ module Partitioned
 
             it "returns parent_table_schema_name" do
               dsl.parent_table_schema_name("public")
-              dsl.data.parent_table_schema_name.should == "public"
+              expect(dsl.data.parent_table_schema_name).to eq("public")
             end
 
           end # when try to set the schema name of the table who is the direct ancestor of a child table
@@ -436,7 +436,7 @@ module Partitioned
 
             it "returns parent_table_schema_name" do
               dsl.parent_table_schema_name('#{model.table_name}')
-              dsl.data.parent_table_schema_name.should == '#{model.table_name}'
+              expect(dsl.data.parent_table_schema_name).to eq('#{model.table_name}')
             end
 
           end # when try to set the schema name represented as a string to be interpolated at run time
@@ -451,7 +451,7 @@ module Partitioned
 
             it "returns proc" do
               dsl.parent_table_schema_name lmd
-              dsl.data.parent_table_schema_name.should == lmd
+              expect(dsl.data.parent_table_schema_name).to eq(lmd)
             end
 
           end # when try to set the schema name(with proc) of the table who is the direct ancestor of a child table
