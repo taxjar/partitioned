@@ -11,7 +11,6 @@ module Partitioned
     module DailyTimeField
       class Employee < ByDailyTimeField
         belongs_to :company, :class_name => 'Company'
-        attr_accessible :name, :company_id, :created_at
 
         def self.partition_time_field
           return :created_at

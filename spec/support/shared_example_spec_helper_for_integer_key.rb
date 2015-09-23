@@ -102,7 +102,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "returns empty array" do
       subject.delete(1)
-      expect(subject.find(:all)).to eq([])
+      expect(subject.all).to eq([])
     end
 
   end # when try to delete a record with id = 1
