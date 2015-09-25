@@ -38,13 +38,11 @@ module Partitioned
       # Does a specific child partition exist.
       #
       def partition_exists?(*partition_key_values)
-        return find(:first,
-                    :from => "pg_tables",
-                    :select => "count(*) as count",
-                    :conditions  => ["schemaname = ? and tablename = ?",
-                                      configurator.schema_name,
-                                      configurator.part_name(*partition_key_values)
-                    ]).count.to_i == 1
+        return find_by_sql([
+                             "SELECT COUNT(*) as count FROM pg_tables WHERE schemaname = ? AND tablename = ?;",
+                             configurator.schema_name,
+                             configurator.part_name(*partition_key_values)
+                           ]).count.to_i == 1
       end
 
       #
