@@ -42,7 +42,7 @@ module Partitioned
                              "SELECT COUNT(*) as count FROM pg_tables WHERE schemaname = ? AND tablename = ?;",
                              configurator.schema_name,
                              configurator.part_name(*partition_key_values)
-                           ]).count.to_i == 1
+                           ]).first.count.to_i == 1
       end
 
       #
