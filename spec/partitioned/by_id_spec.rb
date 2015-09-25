@@ -25,7 +25,7 @@ module Partitioned
     before(:all) do
       @employee = Id::Employee
       create_tables
-      @employee.create_new_partition_tables(Range.new(1, 5).step(@employee.partition_table_size))
+      @employee.create_new_partition_tables(Range.new(1, 10).step(@employee.partition_table_size))
       ActiveRecord::Base.connection.execute <<-SQL
         insert into employees_partitions.p1 (company_id,name) values (1,'Keith');
       SQL
@@ -90,6 +90,20 @@ module Partitioned
     end # partitioned block
 
     it_should_behave_like "check that basic operations with postgres works correctly for integer key", Id::Employee
+
+    it "runs updates correctly" do
+      test_company = ::TablesSpecHelper::Company.new
+      test_company.save!
+
+      test_employee = @employee.new
+      test_employee.name = "foo"
+      test_employee.company_id = test_company.id
+      test_employee.save!
+
+      test_employee2 = @employee.where(:name => "foo").first
+      test_employee2.salary = 1
+      test_employee2.save!
+    end
 
   end # ById
 

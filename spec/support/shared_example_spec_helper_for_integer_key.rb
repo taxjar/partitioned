@@ -128,7 +128,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to find a record outside the range of partitions" do
 
     it "raises ActiveRecord::StatementInvalid" do
-      expect { subject.from_partition(8).find(1)
+      expect { subject.from_partition(13).find(1)
       }.to raise_error(ActiveRecord::StatementInvalid)
     end
 

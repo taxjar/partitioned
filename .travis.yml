@@ -9,7 +9,6 @@ rvm:
   - 2.0.0
   - 2.1.7
 
-before_script:
-  - createdb part_test
+before_script: travis/before.sh
 
 script: bundle exec rspec
