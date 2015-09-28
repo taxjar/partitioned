@@ -28,8 +28,9 @@ module ActiveRecord
           where(using_arel_table[pk].eq(substitute))
       else
         # ****** END PARTITIONED PATCH ******
-        relation = self.class.unscoped.where(
-                                             self.class.arel_table[pk].eq(substitute))
+
+        relation = self.class.unscoped.where(self.class.arel_table[pk].eq(substitute))
+
         # ****** BEGIN PARTITIONED PATCH ******
       end
       # ****** END PARTITIONED PATCH ******
@@ -64,48 +65,22 @@ module ActiveRecord
 
     # Updates the associated record with values matching those of the instance attributes.
     # Returns the number of affected rows.
-    # NOTE(hofer): This monkeypatch intended for activerecord 4.0.  Based on this code:
-    # https://github.com/rails/rails/blob/4-0-stable/activerecord/lib/active_record/persistence.rb#L487
     def _update_record(attribute_names = @attributes.keys)
-      attributes_with_values = arel_attributes_with_values_for_update(attribute_names)
-      if attributes_with_values.empty?
+      # ****** BEGIN PARTITIONED PATCH ******
+      # NOTE(hofer): This patch ensures the columns the table is
+      # partitioned on are passed along to the update code so that the
+      # update statement runs against a child partition, not the
+      # parent table, to help with performance.
+      if self.class.respond_to?(:partition_keys)
+        attribute_names.concat self.class.partition_keys.map(&:to_s)
+        attribute_names.uniq!
+      end
+      # ****** END PARTITIONED PATCH ******
+      attributes_values = arel_attributes_with_values_for_update(attribute_names)
+      if attributes_values.empty?
         0
       else
-        klass = self.class
-        column_hash = klass.connection.schema_cache.columns_hash klass.table_name
-        db_columns_with_values = attributes_with_values.map { |attr,value|
-          real_column = column_hash[attr.name]
-          [real_column, value]
-        }
-        bind_attrs = attributes_with_values.dup
-        bind_attrs.keys.each_with_index do |column, i|
-          real_column = db_columns_with_values[i].first
-          bind_attrs[column] = klass.connection.substitute_at(real_column, i)
-        end
-
-        # ****** BEGIN PARTITIONED PATCH ******
-        if self.respond_to?(:dynamic_arel_table)
-          using_arel_table = dynamic_arel_table()
-          stmt = klass.unscoped.where(using_arel_table[klass.primary_key].eq(id_was || id)).arel.compile_update(bind_attrs)
-
-          # NOTE(hofer): The stmt variable got set up using
-          # klass.arel_table as its arel value.  So arel_table.name is
-          # what gets used to construct the update statement.  Here we
-          # set it to the specific partition name for this record so
-          # that the update gets run just on that partition, not on
-          # the parent one (which can cause performance issues).
-          begin
-            klass.arel_table.name = partition_table_name()
-            klass.connection.update stmt, 'SQL', db_columns_with_values
-          ensure
-            klass.arel_table.name = klass.table_name
-          end
-        else
-          # Original lines:
-          stmt = klass.unscoped.where(klass.arel_table[klass.primary_key].eq(id_was || id)).arel.compile_update(bind_attrs)
-          klass.connection.update stmt, 'SQL', db_columns_with_values
-        end
-        # ****** END PARTITIONED PATCH ******
+        self.class.unscoped._update_record attributes_values, id, id_was
       end
     end
 
@@ -115,9 +90,9 @@ module ActiveRecord
 
     # This method is patched to change the default behavior of select
     # to use the Relation's Arel::Table
-    def build_select(arel, selects)
-      if !selects.empty?
-        expanded_select = selects.map do |field|
+    def build_select(arel)
+      if !select_values.empty?
+        expanded_select = select_values.map do |field|
           columns_hash.key?(field.to_s) ? arel_table[field] : field
         end
         arel.project(*expanded_select)
@@ -186,5 +161,48 @@ module ActiveRecord
                   binds)
     end
 
+    # NOTE(hofer): This monkeypatch intended for activerecord 4.1.  Based on this code:
+    # https://github.com/rails/rails/blob/4-1-stable/activerecord/lib/active_record/relation.rb#L73-L88
+    # TODO(hofer): Update this for rails 4.2, looks like the monkeypatched method changes a bit.
+    def _update_record(values, id, id_was) # :nodoc:
+      substitutes, binds = substitute_values values
+
+      scope = @klass.unscoped
+
+      if @klass.finder_needs_type_condition?
+        scope.unscope!(where: @klass.inheritance_column)
+      end
+
+      # ****** BEGIN PARTITIONED PATCH ******
+      if @klass.respond_to?(:dynamic_arel_table)
+        using_arel_table = @klass.dynamic_arel_table(Hash[*values.map { |k,v| [k.name,v] }.flatten])
+        um = scope.where(using_arel_table[@klass.primary_key].eq(id_was || id)).arel.compile_update(substitutes, @klass.primary_key)
+
+        # NOTE(hofer): The um variable got set up using
+        # klass.arel_table as its arel value.  So arel_table.name is
+        # what gets used to construct the update statement.  Here we
+        # set it to the specific partition name for this record so
+        # that the update gets run just on that partition, not on the
+        # parent one (which can cause performance issues).
+        begin
+          @klass.arel_table.name = using_arel_table.name
+          @klass.connection.update(
+                                   um,
+                                   'SQL',
+                                   binds)
+        ensure
+          @klass.arel_table.name = @klass.table_name
+        end
+      else
+        # Original lines:
+        um = scope.where(@klass.arel_table[@klass.primary_key].eq(id_was || id)).arel.compile_update(substitutes, @klass.primary_key)
+
+        @klass.connection.update(
+                                 um,
+                                 'SQL',
+                                 binds)
+      end
+      # ****** END PARTITIONED PATCH ******
+    end
   end # class Relation
 end # module ActiveRecord
