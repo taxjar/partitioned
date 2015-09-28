@@ -11,7 +11,6 @@ module Partitioned
     module IntegerField
       class Employee < Partitioned::ByIntegerField
         belongs_to :company, :class_name => 'Company'
-        attr_accessible :name, :integer_field, :company_id
 
         def self.partition_integer_field
           return :integer_field
