@@ -62,6 +62,53 @@ module ActiveRecord
       id
     end
 
+    # Updates the associated record with values matching those of the instance attributes.
+    # Returns the number of affected rows.
+    # NOTE(hofer): This monkeypatch intended for activerecord 4.0.  Based on this code:
+    # https://github.com/rails/rails/blob/4-0-stable/activerecord/lib/active_record/persistence.rb#L487
+    def _update_record(attribute_names = @attributes.keys)
+      attributes_with_values = arel_attributes_with_values_for_update(attribute_names)
+      if attributes_with_values.empty?
+        0
+      else
+        klass = self.class
+        column_hash = klass.connection.schema_cache.columns_hash klass.table_name
+        db_columns_with_values = attributes_with_values.map { |attr,value|
+          real_column = column_hash[attr.name]
+          [real_column, value]
+        }
+        bind_attrs = attributes_with_values.dup
+        bind_attrs.keys.each_with_index do |column, i|
+          real_column = db_columns_with_values[i].first
+          bind_attrs[column] = klass.connection.substitute_at(real_column, i)
+        end
+
+        # ****** BEGIN PARTITIONED PATCH ******
+        if self.respond_to?(:dynamic_arel_table)
+          using_arel_table = dynamic_arel_table()
+          stmt = klass.unscoped.where(using_arel_table[klass.primary_key].eq(id_was || id)).arel.compile_update(bind_attrs)
+
+          # NOTE(hofer): The stmt variable got set up using
+          # klass.arel_table as its arel value.  So arel_table.name is
+          # what gets used to construct the update statement.  Here we
+          # set it to the specific partition name for this record so
+          # that the update gets run just on that partition, not on
+          # the parent one (which can cause performance issues).
+          begin
+            klass.arel_table.name = partition_table_name()
+            klass.connection.update stmt, 'SQL', db_columns_with_values
+          ensure
+            klass.arel_table.name = klass.table_name
+          end
+        else
+          # Original lines:
+          stmt = klass.unscoped.where(klass.arel_table[klass.primary_key].eq(id_was || id)).arel.compile_update(bind_attrs)
+          klass.connection.update stmt, 'SQL', db_columns_with_values
+        end
+        # ****** END PARTITIONED PATCH ******
+      end
+    end
+
   end # module Persistence
 
   module QueryMethods
@@ -86,26 +133,6 @@ module ActiveRecord
   end # module QueryMethods
 
   class Relation
-
-    # This method is patched to use the arel table corresponding to the partition,
-    # instead of the parent table.
-    def update_record(values, id, id_was) # :nodoc:
-      substitutes, binds = substitute_values values
-
-      # ****** BEGIN PARTITIONED PATCH ******
-      # Original line:
-      # um = @klass.unscoped.where(@klass.arel_table[@klass.primary_key].eq(id_was || id)).arel.compile_update(substitutes, @klass.primary_key)
-
-      using_arel_table = self.respond_to?(:dynamic_arel_table) ? dynamic_arel_table() : @klass.arel_table
-      um = @klass.unscoped.where(using_arel_table[@klass.primary_key].eq(id_was || id)).arel.compile_update(substitutes, @klass.primary_key)
-
-      # ****** END PARTITIONED PATCH ******
-
-      @klass.connection.update(
-                               um,
-                               'SQL',
-                               binds)
-    end
 
     # This method is patched to use a table name that is derived from
     # the attribute values.
@@ -160,5 +187,4 @@ module ActiveRecord
     end
 
   end # class Relation
-
 end # module ActiveRecord
