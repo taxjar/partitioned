@@ -73,8 +73,12 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to update a record with id = 1" do
 
     it "returns updated employee name" do
+      record = subject.find(1)
+      original_created_at = record.created_at
       subject.update(1, :name => 'Kevin')
-      expect(subject.find(1).name).to eq("Kevin")
+      result = subject.find(1)
+      expect(result.name).to eq "Kevin"
+      expect(result.created_at).to eq original_created_at
     end
 
   end # when try to update a record with id = 1

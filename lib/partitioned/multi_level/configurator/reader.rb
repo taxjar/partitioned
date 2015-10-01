@@ -5,10 +5,10 @@ module Partitioned
       # {PartitionManager} to request partitioning information froma
       # centralized source from multi level partitioned models
       class Reader < Partitioned::PartitionedBase::Configurator::Reader
-        
+
         alias :base_collect_from_collection :collect_from_collection
         alias :base_collect :collect
-        
+
         # configurator for a specific class level
         UsingConfigurator = Struct.new(:model, :sliced_class, :dsl)
 
@@ -81,7 +81,7 @@ module Partitioned
             bag
           end
         end
-        
+
         #
         # Foreign keys to create on each leaf partition.
         #
@@ -140,7 +140,11 @@ module Partitioned
             using_classes.each do |using_class|
               using_class.ancestors.each do |ancestor|
                 next if ancestor.class == Module
-                @using_configurators << UsingConfigurator.new(using_class, ancestor, ancestor::configurator_dsl) if ancestor::configurator_dsl
+
+                if ancestor.respond_to?(:configurator_dsl) && ancestor::configurator_dsl
+                  @using_configurators << UsingConfigurator.new(using_class, ancestor, ancestor::configurator_dsl)
+                end
+
                 break if ancestor == Partitioned::PartitionedBase
               end
             end
