@@ -8,7 +8,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create one record" do
 
     it "record created" do
-      expect { subject.create(:name => 'Phil', :company_id => 3, :integer_field => 2)
+      expect { subject.create(:name => 'Phil', :company_id => 3, :integer_field => 2, :text_field => 'b')
       }.not_to raise_error
     end
 
@@ -18,7 +18,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "record created" do
       expect {
-        instance = subject.new(:name => 'Mike', :company_id => 1, :integer_field => 1)
+        instance = subject.new(:name => 'Mike', :company_id => 1, :integer_field => 1, :text_field => 'a')
         instance.save!
       }.not_to raise_error
     end
@@ -29,8 +29,8 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "records created" do
       expect { subject.create_many([
-                                     { :name => 'Alex', :company_id => 2, :integer_field => 4 },
-                                     { :name => 'Aaron', :company_id => 3, :integer_field => 2 }])
+                                     { :name => 'Alex', :company_id => 2, :integer_field => 4, :text_field => 'd' },
+                                     { :name => 'Aaron', :company_id => 3, :integer_field => 2, :text_field => 'b' }])
       }.not_to raise_error
     end
 

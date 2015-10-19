@@ -23,6 +23,7 @@ require 'partitioned/by_created_at'
 require 'partitioned/by_integer_field'
 require 'partitioned/by_id'
 require 'partitioned/by_foreign_key'
+require 'partitioned/by_text_field'
 
 require 'partitioned/multi_level'
 require 'partitioned/multi_level/configurator/data'

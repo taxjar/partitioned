@@ -1,6 +1,4 @@
-DATE_NOW = Date.today
-
-shared_examples_for "check that basic operations with postgres works correctly for time key" do |class_name|
+shared_examples_for "check that basic operations with postgres works correctly for text key" do |class_name|
 
   let!(:subject) do
     class_name.reset_column_information
@@ -10,7 +8,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create one record" do
 
     it "record created" do
-      expect { subject.create(:name => 'Phil', :company_id => 3, :created_at => DATE_NOW + 1, :text_field => 'b')
+      expect { subject.create(:name => 'Phil', :company_id => 3, :integer_field => 2, :text_field => 'b')
       }.not_to raise_error
     end
 
@@ -20,7 +18,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "record created" do
       expect {
-        instance = subject.new(:name => 'Mike', :company_id => 1, :created_at => DATE_NOW + 1, :text_field => 'a')
+        instance = subject.new(:name => 'Mike', :company_id => 1, :integer_field => 1, :text_field => 'a')
         instance.save!
       }.not_to raise_error
     end
@@ -31,13 +29,12 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "records created" do
       expect { subject.create_many([
-                                     { :name => 'Alex', :company_id => 2, :created_at => DATE_NOW + 1, :text_field => 'd' },
-                                     { :name => 'Aaron', :company_id => 3, :created_at => DATE_NOW + 1, :text_field => 'b' }])
+                                     { :name => 'Alex', :company_id => 2, :integer_field => 4, :text_field => 'd' },
+                                     { :name => 'Aaron', :company_id => 3, :integer_field => 2, :text_field => 'b' }])
       }.not_to raise_error
     end
 
   end # when try to create many records
-  
 
   context "when try to find a record with the search term is id" do
 
@@ -55,18 +52,10 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
   end # when try to find a record with the search term is name
 
-  context "when try to find a record with the search term is company_id" do
-
-    it "returns employee name" do
-      expect(subject.where(:company_id => 1).first.name).to eq("Keith")
-    end
-
-  end # when try to find a record with the search term is company_id
-
   context "when try to find a record which is showing partition table" do
 
     it "returns employee name" do
-      expect(subject.from_partition(DATE_NOW).find(1).name).to eq("Keith")
+      expect(subject.from_partition('a').find(1).name).to eq("Keith")
     end
 
   end # when try to find a record which is showing partition table
@@ -84,10 +73,8 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "returns updated employee name" do
       subject.update_many( {
-        { :id => 1 } => {
-            :name => 'Alex',
-            :company_id => 3,
-            :created_at => DATE_NOW
+        { :id => 1, :integer_field => 1, :text_field => 'a', :company_id => 1 } => {
+            :name => 'Alex'
           }
       } )
       expect(subject.find(1).name).to eq("Alex")
@@ -96,8 +83,10 @@ shared_examples_for "check that basic operations with postgres works correctly f
     it "returns updated employee name" do
       rows = [{
          :id => 1,
+         :integer_field => 1,
+         :text_field => 'a',
+         :company_id => 1,
          :name => 'Pit',
-         :created_at => DATE_NOW
       }]
 
       options = {
@@ -122,7 +111,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to create new record outside the range of partitions" do
 
     it "raises ActiveRecord::StatementInvalid" do
-      expect { subject.create_many([{ :created_at => DATE_NOW - 1.year, :company_id => 1 }])
+      expect { subject.create_many([{ :name => 'Mark', :company_id => 13, :integer_field => 5 } ])
       }.to raise_error(ActiveRecord::StatementInvalid)
     end
 
@@ -130,9 +119,9 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
   context "when try to update a record outside the range of partitions" do
 
-    it "raises ActiveRecord::StatementInvalid" do
-      expect { subject.update(1, :name => 'Kevin', :created_at => DATE_NOW - 1.year)
-      }.to raise_error(ActiveRecord::StatementInvalid)
+    it "raises ActiveRecord::RecordNotFound" do
+      expect { subject.update(100500, :name => 'Kevin')
+      }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
   end # when try to update a record outside the range of partitions
@@ -140,9 +129,10 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to find a record outside the range of partitions" do
 
     it "raises ActiveRecord::StatementInvalid" do
-      expect { subject.from_partition(DATE_NOW - 1.year).find(1)
+      expect { subject.from_partition(8).find(1)
       }.to raise_error(ActiveRecord::StatementInvalid)
     end
 
   end # when try to find a record outside the range of partitions
-end # check that basic operations with postgres works correctly for time key
+
+end # check that basic operations with postgres works correctly for integer key
