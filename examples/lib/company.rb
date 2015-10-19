@@ -1,5 +1,5 @@
 class Company < ActiveRecord::Base
-  include BulkDateMethods::Mixin
+  include BulkDataMethods::Mixin
   has_many :employees, :class_name => 'Company', :conditions => "companies.id = employees.companies_id"
 
   connection.execute <<-SQL

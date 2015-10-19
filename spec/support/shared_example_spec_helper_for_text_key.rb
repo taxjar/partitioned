@@ -1,4 +1,4 @@
-shared_examples_for "check that basic operations with postgres works correctly for integer key" do |class_name|
+shared_examples_for "check that basic operations with postgres works correctly for text key" do |class_name|
 
   let!(:subject) do
     class_name.reset_column_information
@@ -55,7 +55,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
   context "when try to find a record which is showing partition table" do
 
     it "returns employee name" do
-      expect(subject.from_partition(1).find(1).name).to eq("Keith")
+      expect(subject.from_partition('a').find(1).name).to eq("Keith")
     end
 
   end # when try to find a record which is showing partition table
@@ -73,7 +73,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "returns updated employee name" do
       subject.update_many( {
-        { :id => 1, :integer_field => 1, :company_id => 1 } => {
+        { :id => 1, :integer_field => 1, :text_field => 'a', :company_id => 1 } => {
             :name => 'Alex'
           }
       } )
@@ -84,6 +84,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
       rows = [{
          :id => 1,
          :integer_field => 1,
+         :text_field => 'a',
          :company_id => 1,
          :name => 'Pit',
       }]
