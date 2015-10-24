@@ -1,39 +1,39 @@
 require 'spec_helper'
 require "#{File.dirname(__FILE__)}/../support/tables_spec_helper"
-require "#{File.dirname(__FILE__)}/../support/shared_example_spec_helper_for_modulo_key"
+require "#{File.dirname(__FILE__)}/../support/shared_example_spec_helper_for_text_key"
 
 module Partitioned
 
-  describe ByModuloField do
+  describe ByTextField do
 
     include TablesSpecHelper
 
-    module ModuloField
-      class Employee < ByModuloField
+    module TextField
+      class Employee < ByTextField
         include BulkDataMethods::Mixin
         
         belongs_to :company, :class_name => 'Company'
 
-        def self.partition_modulus
-          return 2
+        def self.partition_text_field
+          return :text_field
         end
 
-        def self.partition_modulo_field
-          return :integer_field
+        def self.normalized_text_values
+          ['a','b','c','d']
         end
 
         partitioned do |partition|
-          partition.index :integer_field
+          partition.index :text_field
         end
       end # Employee
-    end # ModuloField
+    end # TextField
 
     before(:all) do
-      @employee = ModuloField::Employee
+      @employee = TextField::Employee
       create_tables
-      @employee.create_new_partition_tables(Range.new(0, 1))
+      @employee.create_new_partition_tables(TextField::Employee.normalized_text_values)
       ActiveRecord::Base.connection.execute <<-SQL
-        insert into employees_partitions.p1 (company_id,name) values (1,'Keith');
+        insert into employees_partitions.pa (company_id,name) values (1,'Keith');
       SQL
     end
 
@@ -41,7 +41,7 @@ module Partitioned
       drop_tables
     end
 
-    let(:class_by_id) { ::Partitioned::ByModuloField }
+    let(:class_by_id) { ::Partitioned::ByTextField }
 
     describe "model is abstract class" do
 
@@ -51,22 +51,22 @@ module Partitioned
 
     end # model is abstract class
 
-    describe "#partition_modulo_field" do
+    describe "#partition_text_field" do
 
       it "returns :id" do
         expect {
-          class_by_id.partition_modulo_field
+          class_by_id.partition_text_field
         }.to raise_error(MethodNotImplemented)
       end
 
-    end # #partition_modulo_field
+    end # #partition_text_field
 
     describe "partitioned block" do
 
       context "checks if there is data in the indexes field" do
 
         it "returns :integer_field" do
-          expect(class_by_id.configurator_dsl.data.indexes.first.call(@employee, nil).field).to eq(:integer_field)
+          expect(class_by_id.configurator_dsl.data.indexes.first.call(@employee, nil).field).to eq(:text_field)
         end
 
         it "returns { :unique => true }" do
@@ -77,8 +77,8 @@ module Partitioned
 
     end # partitioned block
 
-    it_should_behave_like "check that basic operations with postgres works correctly for modulo key", ModuloField::Employee
+    it_should_behave_like "check that basic operations with postgres works correctly for text key", TextField::Employee
 
-  end # ByModuloField
+  end # ByTextField
 
 end # Partitioned
