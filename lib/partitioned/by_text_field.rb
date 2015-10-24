@@ -17,7 +17,7 @@ module Partitioned
     # @return [Integer] the normalized value
     #
     def self.partition_normalize_key_value(text_field_value)
-      return text_field_value.to_s
+      return text_field_value.to_s.gsub(' ', '_').downcase
     end
 
     # the normalized key value for a given key value
@@ -46,7 +46,7 @@ module Partitioned
       partition.order "substring(tablename, 2)::text desc"
 
       partition.check_constraint lambda { |model, id|
-        value = model.partition_normalize_key_value(id)
+        value = model.partition_normalize_key_value(id).upcase
         return "#{model.partition_text_field}::text = '#{value}'::text"
       }
 
