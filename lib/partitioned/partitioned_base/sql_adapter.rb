@@ -210,6 +210,20 @@ module Partitioned
       end
 
       #
+      # Remove indexes that must exist on child tables. Only leaf child tables
+      # need indexes as parent table indexes are not used in postgres.
+      #
+      def remove_partition_table_index(*partition_key_values)
+        configurator.indexes(*partition_key_values).each do |field,options|
+          used_options = options.clone
+          name = used_options.has_key?(:name) ? used_options[:name] : [*field].join('_')
+          name = used_options[:unique] ? unique_index_name(name, *partition_key_values) : index_name(name, *partition_key_values)
+          sql ="DROP INDEX #{configurator.table_name}_partitions.#{name}"
+          execute(sql)
+        end
+      end
+
+      #
       # Used when creating the name of a SQL rule.
       #
       def parent_table_rule_name(name, suffix = "rule", *partition_key_values)

@@ -342,6 +342,12 @@ module Partitioned
       partition_manager.add_partition_table_index(*partition_key_values)
     end
 
+    # :singleton-method: remove_partition_table_index
+    # delegated to Partitioned::PartitionedBase::PartitionManager#remove_partition_table_index
+    def self.remove_partition_table_index(*partition_key_values)
+      partition_manager.remove_partition_table_index(*partition_key_values)
+    end
+
     ##
     # :singleton-method: add_references_to_partition_table
     # delegated to Partitioned::PartitionedBase::PartitionManager#add_references_to_partition_table
