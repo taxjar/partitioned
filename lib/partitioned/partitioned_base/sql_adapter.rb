@@ -199,7 +199,13 @@ module Partitioned
           used_options = options.clone
           name = used_options.has_key?(:name) ? used_options[:name] : [*field].join('_')
           used_options[:name] = used_options[:unique] ? unique_index_name(name, *partition_key_values) : index_name(name, *partition_key_values)
-          add_index(partition_table_name(*partition_key_values), field, used_options)
+
+          if used_options.has_key?(:sql)
+            sql = used_options[:sql].gsub('#{name}',used_options[:name]).gsub('#{table}',partition_table_name(*partition_key_values))
+            execute(sql)
+          else
+            add_index(partition_table_name(*partition_key_values), field, used_options)
+          end
         end
       end
 
