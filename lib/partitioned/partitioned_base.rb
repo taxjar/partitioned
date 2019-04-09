@@ -1,7 +1,6 @@
 #
 # :include: ../../README
 #
-require "bulk_data_methods"
 
 module Partitioned
   #
@@ -20,8 +19,6 @@ module Partitioned
   # Uses a domain specific language to configure, see Partitioned::PartitionedBase::Configurator
   # for more information.
   #
-  # Extends BulkMethodsMixin to provide create_many and update_many.
-  #
   # Uses PartitionManager to manage creation of child tables.
   #
   # Monkey patches some ActiveRecord routines to call back to this class when INSERT and UPDATE
@@ -29,7 +26,6 @@ module Partitioned
   #
   class PartitionedBase < ActiveRecord::Base
     include ActiveRecordOverrides
-    extend ::BulkMethodsMixin
 
     self.abstract_class = true
 
@@ -112,8 +108,8 @@ module Partitioned
       new_arel_table = @arel_tables[[partition_key_values, as]]
       
       unless new_arel_table
-        arel_engine_hash = {:engine => self.arel_engine, :as => as}
-        new_arel_table = Arel::Table.new(self.partition_table_name(*partition_key_values), arel_engine_hash)
+        type_caster_hash = { type_caster: type_caster, as: as }
+        new_arel_table = Arel::Table.new(self.partition_table_name(*partition_key_values), type_caster_hash)
         @arel_tables[[partition_key_values, as]] = new_arel_table
       end
 
@@ -158,7 +154,10 @@ module Partitioned
     # @return [Hash] the scoping
     def self.from_partition(*partition_key_values)
       table_alias_name = partition_table_alias_name(*partition_key_values)
-      return ActiveRecord::Relation.new(self, self.arel_table_from_key_values(partition_key_values, table_alias_name))
+      arel_table = self.arel_table_from_key_values(partition_key_values, table_alias_name)
+      predicate_builder = ActiveRecord::PredicateBuilder.new ActiveRecord::TableMetadata.new(self, arel_table)
+
+      return self.const_get(:ActiveRecord_Relation).new(self, table: arel_table, predicate_builder: predicate_builder)
     end
 
     #
