@@ -1,32 +1,12 @@
-common: &common
+default: &default
   adapter: postgresql
-  username: postgres
-  password: postgres
-  encoding: SQL_ASCII
-  template: template0
+  encoding: unicode
   pool: 5
-  timeout: 5000
-
-local: &local
-  host: 127.0.0.1
-
-# -----------------
-# *** part ***
-# -----------------
 
 development:
-  <<: *common
-  <<: *local
-  database: part_production
-
-production:
-  <<: *common
-  <<: *local
-  database: part_production
-
+  <<: *default
+  database: partitioned_development
 
 test:
-  <<: *common
-  <<: *local
-  database: part_test
-
+  <<: *default
+  database: partitioned_test
