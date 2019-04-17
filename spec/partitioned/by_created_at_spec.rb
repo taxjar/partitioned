@@ -23,7 +23,7 @@ module Partitioned
       @employee = CreatedAt::Employee
       create_tables
       dates = @employee.partition_generate_range(DATE_NOW,
-                                                 DATE_NOW + 7.days)
+                                                 DATE_NOW + 3.weeks)
       @employee.create_new_partition_tables(dates)
       ActiveRecord::Base.connection.execute <<-SQL
         insert into employees_partitions.
@@ -45,6 +45,57 @@ module Partitioned
       end
 
     end # model is abstract class
+
+    describe "multi threads" do
+      context 'update' do
+        it do
+          employee = CreatedAt::Employee.first
+          employee2 = CreatedAt::Employee.create!(company_id: 1, name: 'Robert', created_at: 2.weeks.from_now)
+
+          update_method = Partitioned::CreatedAt::Employee.connection.method(:update)
+          allow(Partitioned::CreatedAt::Employee.connection).to receive(:update) do |um, msg|
+            sleep 0.1
+            update_method.call(um, msg)
+          end
+
+          thread1 = Thread.new do
+            employee2.name = 'Robert2'
+            employee2.save!
+          end
+
+          sleep 0.1
+          employee.name = 'Keith2'
+          employee.save!
+
+          expect(employee.reload.name).to eq 'Keith2'
+          expect(employee2.reload.name).to eq 'Robert2'
+
+          thread1.join
+
+        end
+      end
+
+      context 'insert' do
+        it do
+          insert_method = Partitioned::CreatedAt::Employee.connection.method(:insert)
+          allow(Partitioned::CreatedAt::Employee.connection).to receive(:insert) do |im, msg, p_k, p_k_v|
+            sleep 0.1
+            insert_method.call(im, msg, p_k, p_k_v)
+          end
+
+          expect do
+            thread1 = Thread.new do
+              CreatedAt::Employee.create!(company_id: 1, name: 'Robert', created_at: 1.weeks.from_now)
+            end
+
+            sleep 0.1
+            CreatedAt::Employee.create!(company_id: 1, name: 'Przemek', created_at: 2.weeks.from_now)
+
+            thread1.join
+          end.not_to raise_error
+        end
+      end
+    end # multi threads
 
     describe "#partition_time_field" do
 

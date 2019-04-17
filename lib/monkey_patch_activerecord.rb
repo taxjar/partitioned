@@ -32,26 +32,26 @@ module ActiveRecord
         end
 
         # ****** BEGIN PARTITIONED PATCH ******
-        actual_arel_table = self.dynamic_arel_table(values) if self.respond_to?(:dynamic_arel_table)
-        actual_arel_table ||= arel_table
-
-        begin
-          self.arel_table.name = actual_arel_table.name
-          # ****** END PARTITIONED PATCH ******
-          if values.empty?
-            im = arel_table.compile_insert(connection.empty_insert_statement_value)
-            im.into arel_table
-          else
-            im = arel_table.compile_insert(_substitute_values(values))
-          end
-
-          connection.insert(im, "#{self} Create", primary_key || false, primary_key_value)
-
-          # ****** BEGIN PARTITIONED PATCH ******
-        ensure
-          self.arel_table.name = table_name
+        if self.respond_to?(:dynamic_arel_table)
+          actual_arel_table = self.dynamic_arel_table(values)
+        else
+          actual_arel_table = arel_table
         end
+        actual_arel_table.table_alias = nil
         # ****** END PARTITIONED PATCH ******
+
+        if values.empty?
+          im = arel_table.compile_insert(connection.empty_insert_statement_value)
+          im.into arel_table
+        else
+          im = arel_table.compile_insert(_substitute_values(values))
+        end
+
+        # ****** BEGIN PARTITIONED PATCH ******
+        im.ast.relation = actual_arel_table
+        # ****** END PARTITIONED PATCH ******
+
+        connection.insert(im, "#{self} Create", primary_key || false, primary_key_value)
       end
 
       def _update_record(values, constraints) # :nodoc:
@@ -68,16 +68,11 @@ module ActiveRecord
           constraints.reduce(&:and)
         ).compile_update(_substitute_values(values), primary_key)
 
-        begin
-          self.arel_table.name = actual_arel_table.name
-          # ****** END PARTITIONED PATCH ******
-          connection.update(um, "#{self} Update")
-
-          # ****** BEGIN PARTITIONED PATCH ******
-        ensure
-          self.arel_table.name = table_name
-        end
+        actual_arel_table.table_alias = arel_table.name
+        um.ast.relation = actual_arel_table
         # ****** END PARTITIONED PATCH ******
+
+        connection.update(um, "#{self} Update")
       end
 
       private
