@@ -33,7 +33,7 @@ module ActiveRecord
 
         # ****** BEGIN PARTITIONED PATCH ******
         if self.respond_to?(:dynamic_arel_table)
-          actual_arel_table = self.dynamic_arel_table(values)
+          actual_arel_table = self.dynamic_arel_table(values).clone
         else
           actual_arel_table = arel_table.clone
         end
@@ -59,7 +59,7 @@ module ActiveRecord
 
         # ****** BEGIN PARTITIONED PATCH ******
         if self.respond_to?(:dynamic_arel_table)
-          actual_arel_table = self.dynamic_arel_table(values)
+          actual_arel_table = self.dynamic_arel_table(values).clone
         else
           actual_arel_table = arel_table.clone
         end
