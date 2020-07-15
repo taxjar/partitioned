@@ -10,6 +10,8 @@ require 'partitioned/partitioned_base/configurator/reader'
 require 'partitioned/partitioned_base/partition_manager'
 require 'partitioned/partitioned_base/sql_adapter'
 
+require 'partitioned/by_text_field'
+require 'partitioned/by_modulo_field'
 require 'partitioned/by_time_field'
 require 'partitioned/by_yearly_time_field'
 require 'partitioned/by_monthly_time_field'
