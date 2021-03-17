@@ -108,12 +108,26 @@ module Partitioned
       new_arel_table = @arel_tables[[partition_key_values, as]]
       
       unless new_arel_table
-        type_caster_hash = { type_caster: type_caster, as: as }
-        new_arel_table = Arel::Table.new(self.partition_table_name(*partition_key_values), **type_caster_hash)
+        new_arel_table = self.arel_table.dup
+        new_arel_table.table_alias = as unless as.nil?
+        new_arel_table.name = self.partition_table_name(*partition_key_values)
         @arel_tables[[partition_key_values, as]] = new_arel_table
       end
 
       return new_arel_table
+    end
+
+    def self.predicate_builder_from_arel_table(arel_table, as = nil)
+        @predicate_builders ||= {}
+        pb = @predicate_builders[[arel_table.name, as]]
+        
+        unless pb
+          tm = ActiveRecord::TableMetadata.new(self,arel_table)
+          pb = ActiveRecord::PredicateBuilder.new(tm)
+          @predicate_builders[[arel_table.name, as]] = pb
+        end
+        
+        return pb
     end
     
     #
@@ -145,7 +159,7 @@ module Partitioned
     # parent table (so activerecord can generally work with it)
     #
     # Use as:
-    #
+    
     #   Foo.from_partition(KEY).first
     #
     # where KEY is the key value(s) used as the check constraint on Foo's table.
@@ -154,11 +168,11 @@ module Partitioned
     # @return [Hash] the scoping
     def self.from_partition(*partition_key_values)
       table_alias_name = partition_table_alias_name(*partition_key_values)
-      arel_table = self.arel_table_from_key_values(partition_key_values, table_alias_name)
-      predicate_builder = ActiveRecord::PredicateBuilder.new ActiveRecord::TableMetadata.new(self, arel_table)
-
-      return self.const_get(:ActiveRecord_Relation).new(self, table: arel_table, predicate_builder: predicate_builder)
+      table = self.arel_table_from_key_values(partition_key_values, table_alias_name)
+      predicate_builder = predicate_builder_from_arel_table(table, table_alias_name)
+      return ActiveRecord::Relation.create(self, table: table, predicate_builder: predicate_builder)
     end
+
 
     #
     # This scope is used to target the
@@ -183,7 +197,9 @@ module Partitioned
     # @param [*Array<Object>] partition_field the field values to partition on
     # @return [Hash] the scoping
     def self.from_partition_without_alias(*partition_key_values)
-      return ActiveRecord::Relation.new(self, self.arel_table_from_key_values(partition_key_values, nil))
+      table = self.arel_table_from_key_values(partition_key_values, nil)
+      predicate_builder = predicate_builder_from_arel_table(table, nil)
+      return ActiveRecord::Relation.create(self, table: table, predicate_builder: predicate_builder)
     end
 
     #
