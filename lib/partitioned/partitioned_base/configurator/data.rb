@@ -36,6 +36,18 @@ module Partitioned
           def self.foreign_key_to_foreign_table_name(foreign_key_field)
             return ActiveSupport::Inflector::pluralize(foreign_key_field.to_s.sub(/_id$/,''))
           end
+
+          def hash
+            instance_variables.each_with_object([]) do |ivar, a|
+              a << ivar
+              a << instance_variable_get(ivar)
+            end.hash
+          end
+
+          def eql?(other)
+            return false unless other.instance_of?(self.class)
+            other.hash == self.hash
+          end
         end
 
         attr_accessor :on_field, :indexes, :foreign_keys, :last_partitions_order_by_clause,

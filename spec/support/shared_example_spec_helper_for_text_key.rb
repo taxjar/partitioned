@@ -1,14 +1,17 @@
+require "bulk_data_methods"
+
 shared_examples_for "check that basic operations with postgres works correctly for text key" do |class_name|
 
   let!(:subject) do
     class_name.reset_column_information
+    class_name.include(BulkDataMethods::Mixin)
     class_name
   end
 
   context "when try to create one record" do
 
     it "record created" do
-      expect { subject.create(:name => 'Phil', :company_id => 3, :integer_field => 2, :text_field => 'b')
+      expect { subject.create(:name => 'Phil', :company_id => 3, :integer_field => 2, :text_field => 'B')
       }.not_to raise_error
     end
 
@@ -18,7 +21,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "record created" do
       expect {
-        instance = subject.new(:name => 'Mike', :company_id => 1, :integer_field => 1, :text_field => 'a')
+        instance = subject.new(:name => 'Mike', :company_id => 1, :integer_field => 1, :text_field => 'A')
         instance.save!
       }.not_to raise_error
     end
@@ -29,8 +32,8 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "records created" do
       expect { subject.create_many([
-                                     { :name => 'Alex', :company_id => 2, :integer_field => 4, :text_field => 'd' },
-                                     { :name => 'Aaron', :company_id => 3, :integer_field => 2, :text_field => 'b' }])
+                                     { :name => 'Alex', :company_id => 2, :integer_field => 4, :text_field => 'D' },
+                                     { :name => 'Aaron', :company_id => 3, :integer_field => 2, :text_field => 'B' }])
       }.not_to raise_error
     end
 
@@ -73,7 +76,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
 
     it "returns updated employee name" do
       subject.update_many( {
-        { :id => 1, :integer_field => 1, :text_field => 'a', :company_id => 1 } => {
+        { :id => 1, :integer_field => 1, :text_field => 'A', :company_id => 1 } => {
             :name => 'Alex'
           }
       } )
@@ -84,7 +87,7 @@ shared_examples_for "check that basic operations with postgres works correctly f
       rows = [{
          :id => 1,
          :integer_field => 1,
-         :text_field => 'a',
+         :text_field => 'A',
          :company_id => 1,
          :name => 'Pit',
       }]

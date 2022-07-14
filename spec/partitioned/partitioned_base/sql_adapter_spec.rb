@@ -1,4 +1,5 @@
 require 'spec_helper'
+require "./spec/support/foreign_key_spec_helper"
 
 module Partitioned
   class PartitionedBase
@@ -180,6 +181,8 @@ module Partitioned
       end # add_partition_table_index
 
       describe "add_references_to_partition_table" do
+        include ForeignKeySpecHelper
+
         it "added foreign key constraint" do
           create_new_schema
           sql_adapter.create_partition_table(1)
@@ -191,11 +194,16 @@ module Partitioned
             );
           SQL
           sql_adapter.add_references_to_partition_table(1)
-          result = ActiveRecord::Base.connection.execute <<-SQL
-            SELECT constraint_type FROM information_schema.table_constraints
-            WHERE table_name = 'p1' AND constraint_name = 'p1_company_id_fkey';
-          SQL
-          expect(result.values.first).to eq ["FOREIGN KEY"]
+
+          expect(
+            foreign_key_exists?(
+              from_schema: "employees_partitions",
+              from_table: "p1",
+              from_column: "company_id",
+              to_table: "companies",
+              to_column: "id"
+            )
+          ).to be true
         end
       end # add_references_to_partition_table
 

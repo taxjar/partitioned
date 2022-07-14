@@ -1,7 +1,10 @@
+require "bulk_data_methods"
+
 shared_examples_for "check that basic operations with postgres works correctly for modulo key" do |class_name|
 
   let!(:subject) do
     class_name.reset_column_information
+    class_name.include(BulkDataMethods::Mixin)
     class_name
   end
 

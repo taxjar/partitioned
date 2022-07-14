@@ -1,5 +1,6 @@
 require 'spec_helper'
-require "#{File.dirname(__FILE__)}/support/tables_spec_helper"
+require_relative "./support/tables_spec_helper"
+require_relative "./support/foreign_key_spec_helper"
 
 module ActiveRecord::ConnectionAdapters
 
@@ -135,6 +136,7 @@ module ActiveRecord::ConnectionAdapters
     end # drop_schema
 
     describe "add_foreign_key" do
+      include ForeignKeySpecHelper
 
       it "added foreign key constraint" do
         create_new_schema
@@ -147,12 +149,17 @@ module ActiveRecord::ConnectionAdapters
             id      serial not null primary key
           );
         SQL
-        ActiveRecord::Base.connection.add_foreign_key("employees_partitions.temp", :company_id, "companies", :id)
-        result = ActiveRecord::Base.connection.execute <<-SQL
-          SELECT constraint_type FROM information_schema.table_constraints
-          WHERE table_name = 'temp' AND constraint_name = 'temp_company_id_fkey';
-        SQL
-        expect(result.values.first).to eq ["FOREIGN KEY"]
+        ActiveRecord::Base.connection.add_foreign_key("employees_partitions.temp", "companies", column: :company_id, primary_key: :id)
+
+        expect(
+          foreign_key_exists?(
+            from_schema: "employees_partitions",
+            from_table: "temp",
+            from_column: "company_id",
+            to_table: "companies",
+            to_column: "id"
+          )
+        ).to be true
       end
 
     end # add_foreign_key

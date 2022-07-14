@@ -285,9 +285,9 @@ module Partitioned
       def add_references_to_partition_table(*partition_key_values)
         configurator.foreign_keys(*partition_key_values).each do |foreign_key|
           add_foreign_key(partition_table_name(*partition_key_values),
-                          foreign_key.referencing_field,
                           foreign_key.referenced_table,
-                          foreign_key.referenced_field)
+                          column: foreign_key.referencing_field,
+                          primary_key: foreign_key.referenced_field)
         end
       end
 
