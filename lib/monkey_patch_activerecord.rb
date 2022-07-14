@@ -19,7 +19,9 @@ module ActiveRecord
     module ClassMethods
       # TODO: def _delete_record(constraints)
 
+      # modification based on original from ActiveRecord 6.0.5.1's lib/active_record/persistence.rb
       def _insert_record(values) # :nodoc:
+        primary_key = self.primary_key
         primary_key_value = nil
 
         if primary_key && Hash === values
@@ -41,7 +43,7 @@ module ActiveRecord
         # ****** END PARTITIONED PATCH ******
 
         if values.empty?
-          im = arel_table.compile_insert(connection.empty_insert_statement_value)
+          im = arel_table.compile_insert(connection.empty_insert_statement_value(primary_key))
           im.into arel_table
         else
           im = arel_table.compile_insert(_substitute_values(values))
@@ -54,6 +56,7 @@ module ActiveRecord
         connection.insert(im, "#{self} Create", primary_key || false, primary_key_value)
       end
 
+      # modification based on original from ActiveRecord 6.0.5.1's lib/active_record/persistence.rb
       def _update_record(values, constraints) # :nodoc:
         constraints = _substitute_values(constraints).map { |attr, bind| attr.eq(bind) }
 
@@ -81,6 +84,7 @@ module ActiveRecord
 
     private
 
+    # modification based on original from ActiveRecord 6.0.5.1's lib/active_record/persistence.rb
     def _create_record(attribute_names = self.attribute_names)
       # ****** BEGIN PARTITIONED PATCH ******
       if self.id.nil? && self.class.respond_to?(:prefetch_primary_key?) && self.class.prefetch_primary_key?
@@ -93,10 +97,13 @@ module ActiveRecord
       end
       # ****** END PARTITIONED PATCH ******
 
-      attributes_values = attributes_with_values_for_create(attribute_names)
+      attribute_names = attributes_for_create(attribute_names)
 
-      new_id = self.class._insert_record(attributes_values)
-      self.id ||= new_id if self.class.primary_key
+      new_id = self.class._insert_record(
+        attributes_with_values(attribute_names)
+      )
+
+      self.id ||= new_id if @primary_key ### XXX: original patch had `if self.class.primary_key`
 
       @new_record = false
 
@@ -105,6 +112,7 @@ module ActiveRecord
       id
     end
 
+    # modification based on original from ActiveRecord 6.0.5.1's lib/active_record/persistence.rb
     def _update_record(attribute_names = self.attribute_names)
       # ****** BEGIN PARTITIONED PATCH ******
       if self.class.respond_to?(:partition_keys)
@@ -113,8 +121,9 @@ module ActiveRecord
       end
       # ****** END PARTITIONED PATCH ******
 
-      attributes_names = attributes_for_update(attribute_names)
-      if attributes_names.empty?
+      attribute_names = attributes_for_update(attribute_names)
+
+      if attribute_names.empty?
         affected_rows = 0
         @_trigger_update_callback = true
       else
