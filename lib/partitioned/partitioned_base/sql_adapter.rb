@@ -166,8 +166,9 @@ module Partitioned
                        :id => false,
                        :options => "() INHERITS (#{configurator.parent_table_name(*partition_key_values)})"
                      }) do |t|
+            constraint = configurator.check_constraint(*partition_key_values)
+            t.check_constraint constraint if constraint
         end
-        add_check_constraint(*partition_key_values)
       end
 
       #
@@ -203,7 +204,6 @@ module Partitioned
           else
             used_options[:name] = index_name(used_options[:name], *partition_key_values)
           end
-
           add_index(partition_table_name(*partition_key_values), field, **used_options)
         end
       end
