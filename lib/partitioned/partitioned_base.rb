@@ -109,7 +109,7 @@ module Partitioned
       
       unless new_arel_table
         type_caster_hash = { type_caster: type_caster, as: as }
-        new_arel_table = Arel::Table.new(self.partition_table_name(*partition_key_values), type_caster_hash)
+        new_arel_table = Arel::Table.new(self.partition_table_name(*partition_key_values), **type_caster_hash)
         @arel_tables[[partition_key_values, as]] = new_arel_table
       end
 
